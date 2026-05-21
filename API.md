@@ -9,7 +9,7 @@ http://localhost:8000
 
 Production:
 ```txt
-RAILWAY_URL_HERE
+https://rag-app-production-6307.up.railway.app/
 ```
 
 ---
