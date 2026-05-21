@@ -101,3 +101,14 @@ gpt-4o-mini
 
 Reason:
 Good quality-to-cost ratio for portfolio-scale RAG application.
+
+### Storage
+
+Created private Supabase Storage bucket:
+
+```txt
+pdfs
+```
+
+Reason:
+Uploaded PDFs should only be accessible to authenticated users.
