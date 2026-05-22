@@ -156,3 +156,22 @@ Reason:
 Until Segment 6 auth integration:
 - backend routes use x-user-id header manually
 - curl requests use a real Supabase auth.users UUID
+
+---
+
+## Segment 2 Complete
+
+Date: 2026-05-23
+
+Verified locally and on Railway:
+
+- PDF upload works
+- source.pdf uploads to Supabase Storage
+- pages.json uploads correctly
+- documents row created successfully
+- page_count updates correctly
+- PDF text extraction verified manually
+- Production Railway upload verified
+
+Decision:
+- zero extracted pages returns 400 error
