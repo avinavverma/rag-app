@@ -112,3 +112,47 @@ pdfs
 
 Reason:
 Uploaded PDFs should only be accessible to authenticated users.
+
+---
+
+## Segment 2 Started
+
+Date: 2026-05-22
+
+### Extracted Text Storage Decision
+
+Extracted page text is stored in Supabase Storage as JSON files instead of new database columns.
+
+Storage paths:
+
+```txt
+{user_id}/{document_id}/source.pdf
+{user_id}/{document_id}/pages.json
+```
+
+documents.file_path stores ONLY the source.pdf path.
+
+pages.json structure:
+
+```json
+{
+  "pages": [
+    {
+      "page_number": 1,
+      "text": "..."
+    }
+  ]
+}
+```
+
+Reason:
+- avoids schema changes
+- Segment 3 can chunk directly from JSON without re-parsing PDFs
+- extracted text can be manually inspected/debugged
+- keeps ingestion deterministic
+
+### Segment 2 Authentication
+
+Until Segment 6 auth integration:
+- backend routes use x-user-id header manually
+- curl requests use a real Supabase auth.users UUID

@@ -85,6 +85,29 @@ Response:
 }
 ```
 
+### Segment 2 Behavior
+
+Segment 2 returns:
+
+```json
+{
+  "document_id": "uuid",
+  "status": "processing"
+}
+```
+
+after:
+- source PDF stored in Supabase Storage
+- pages.json extracted and stored
+- documents row created/updated
+
+Segment 2 does NOT:
+- insert chunks
+- generate embeddings
+- mark documents as ready
+
+Documents remain in `processing` status until Segment 3 completes chunking and embeddings.
+
 ---
 
 ## GET /documents
