@@ -242,3 +242,18 @@ PDF
 pages.json in Storage remains an audit/debug artifact only.
 
 Chunking uses in-memory pages from extract_pages() during upload.
+
+## Segment 3 Complete
+
+Verified:
+- PDF upload pipeline
+- Page extraction
+- Recursive chunking (500/50)
+- Offset correctness
+- Chunk persistence
+- pgvector integration
+- documents.status transitions
+- Railway production deployment
+
+Temporary mocked embeddings are currently used due to unavailable OpenAI API quota.
+The embedding interface remains swappable without architectural changes.
