@@ -5,3 +5,5 @@ supabase
 pydantic
 pypdf
 python-multipart
+openai
+langchain-text-splitters
