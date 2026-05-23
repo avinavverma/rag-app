@@ -23,11 +23,11 @@ def chunk_document(pages: list[PageText]) -> list[ChunkRecord]:
         search_from = 0
 
         for piece in text_chunks:
-            piece = piece.strip()
-
-            if not piece:
+            # Skip chunks with no meaningful content (check before finding offsets)
+            if not piece.strip():
                 continue
 
+            # Find the piece as-is from splitter (preserves original spacing)
             char_start = page.text.find(piece, search_from)
 
             if char_start == -1:
@@ -37,7 +37,7 @@ def chunk_document(pages: list[PageText]) -> list[ChunkRecord]:
 
             chunks.append(
                 ChunkRecord(
-                    content=piece,
+                    content=piece,  # Store with original spacing intact
                     page_number=page.page_number,
                     chunk_index=global_chunk_index,
                     char_start=char_start,
