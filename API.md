@@ -110,6 +110,24 @@ Documents remain in `processing` status until Segment 3 completes chunking and e
 
 ---
 
+### Segment 3 Behavior
+
+After Segment 3, successful upload returns:
+
+```json
+{
+  "document_id": "uuid",
+  "status": "ready"
+}
+```
+
+The endpoint remains synchronous:
+- client waits until chunking and embeddings complete
+- chunks are inserted before response returns
+
+On failure after the documents row exists:
+- documents.status is set to failed
+
 ## GET /documents
 
 Headers:

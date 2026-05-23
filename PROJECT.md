@@ -175,3 +175,70 @@ Verified locally and on Railway:
 
 Decision:
 - zero extracted pages returns 400 error
+
+---
+
+## Segment 3 Started
+
+Date: 2026-05-23
+
+### Chunking Decisions
+
+Chunking uses RecursiveCharacterTextSplitter with:
+
+- chunk_size = 500
+- chunk_overlap = 50
+
+Chunking is performed per-page using extracted page text from Segment 2.
+
+Pages are NOT merged into a single document string before chunking in order to preserve page_number metadata.
+
+### Offset Semantics
+
+char_start and char_end are offsets within an individual page’s text, not global document offsets.
+
+chunk_index is global across the whole document:
+0, 1, 2, 3, ... across all pages.
+
+char_start is resolved using:
+
+page.text.find(chunk, search_from)
+
+If not found:
+- fallback to search_from
+
+char_end:
+
+char_start + len(chunk)
+
+search_from advances using:
+
+char_start + 1
+
+to correctly handle overlapping chunks.
+
+### Embedding Decisions
+
+Embedding model:
+- text-embedding-3-small
+
+Embedding dimension:
+- 1536
+
+Embedding batch size:
+- 64
+
+### Pipeline Architecture
+
+Segment 3 extends the synchronous ingest pipeline:
+
+PDF
+→ extract pages
+→ chunk pages
+→ embed chunks
+→ insert chunks rows
+→ documents.status = ready
+
+pages.json in Storage remains an audit/debug artifact only.
+
+Chunking uses in-memory pages from extract_pages() during upload.
