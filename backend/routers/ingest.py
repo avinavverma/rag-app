@@ -17,6 +17,10 @@ from models.schemas import UploadResponse
 from services.pdf_parser import extract_pages
 from services.storage import BUCKET, upload_bytes
 
+from services.chunker import chunk_document
+from services.embedder import embed_texts
+from services.chunks_db import insert_chunks
+
 
 router = APIRouter(prefix="/ingest", tags=["ingest"])
 
@@ -101,9 +105,28 @@ async def upload_document(
             }
         ).eq("id", document_id).execute()
 
+        # ========== SEGMENT 3: Chunking, Embedding, Persistence ==========
+        chunk_records = chunk_document(pages)
+        if not chunk_records:
+            raise ValueError("No chunks generated from pages")
+
+        texts = [c.content for c in chunk_records]
+        embeddings = embed_texts(texts)
+
+        for c, e in zip(chunk_records, embeddings):
+            c.embedding = e
+
+        insert_chunks(document_id, user_id, chunk_records)
+
+        supabase.table("documents").update(
+            {
+                "status": "ready"
+            }
+        ).eq("id", document_id).execute()
+
         return UploadResponse(
             document_id=document_id,
-            status="processing",
+            status="ready",
         )
 
     except Exception as e:
