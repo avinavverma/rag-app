@@ -274,3 +274,45 @@ Notes:
 - similarity is cosine similarity in [0, 1] (higher = more relevant)
 - Returns at most 5 chunks, ordered by similarity descending
 - Filtered by both document_id and user_id
+
+### Segment 5 Behavior
+
+* Uses retrieved chunks from the same retrieval pipeline as `POST /query/retrieve`
+* LLM provider: Google Gemini 2.0 Flash (free tier)
+* SSE event order is always:
+
+  1. `sources`
+  2. `token` (repeated streaming events)
+  3. `done`
+* After stream completion, both user and assistant messages are persisted to the `messages` table
+* `sources[].content` contains a short preview of chunk text (truncated), not the full chunk body
+
+Example SSE sequence:
+
+```text
+data: {
+  "type": "sources",
+  "sources": [
+    {
+      "chunk_id": "8064b63f-d4af-4d02-9eff-1255281c867a",
+      "page_number": 9,
+      "content": "Rapidly-exploring Random Tree (RRT) builds a tree that expands toward unexplored regions...",
+      "similarity": 0.6757
+    }
+  ]
+}
+
+data: {
+  "type": "token",
+  "token": "RRT "
+}
+
+data: {
+  "type": "token",
+  "token": "is "
+}
+
+data: {
+  "type": "done"
+}
+```
