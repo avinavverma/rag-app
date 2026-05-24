@@ -372,3 +372,131 @@ Segment 4 retrieval pipeline is operational locally and ready for:
 * streaming responses
 * citation grounding
 * frontend chat integration
+
+## Segment 5 Started — Generation + Streaming
+
+### LLM Provider Decision
+
+Segment 5 introduces streamed answer generation using Google Gemini 2.0 Flash.
+
+Gemini was selected because:
+
+* free tier is sufficient for portfolio/demo usage
+* native streaming support is simple to integrate
+* strong instruction-following for grounded document QA
+* works well with Railway deployment (API-only, no GPU/server management)
+* pairs cleanly with local BGE embeddings for a cost-efficient architecture
+
+Alternatives considered:
+
+* Groq: extremely fast but weaker citation reliability in some cases
+* Ollama/local LLMs: avoided due to RAM usage, cold starts, and deployment complexity
+* OpenAI: skipped due to API cost constraints
+
+---
+
+### Prompt Strategy
+
+Generation is retrieval-grounded.
+
+Pipeline:
+
+question
+→ retrieve relevant chunks
+→ build page-labeled context
+→ generate answer from context only
+
+Prompt rules:
+
+* answer only using retrieved context
+* cite page numbers when relevant
+* refuse unsupported claims if information is absent from context
+* prioritize concise and grounded responses over verbosity
+
+---
+
+### Message Persistence
+
+Each streamed interaction stores two rows in the `messages` table:
+
+1. User message
+
+   * role = `user`
+   * content = raw question
+
+2. Assistant message
+
+   * role = `assistant`
+   * content = full generated answer
+   * sources = JSON metadata for retrieved chunks
+
+Stored source metadata includes:
+
+* chunk_id
+* page_number
+* similarity
+* short chunk preview
+
+This persistence layer will later support:
+
+* frontend chat history
+* citations
+* source cards
+* conversational UX
+
+Gemini provider was replaced with Groq due to Gemini free-tier quota and billing friction during development/testing.
+
+Streaming architecture, retrieval pipeline, prompt builder, and SSE contract remained unchanged because provider integration was isolated inside generator.py.
+
+```md
+## Segment 5 Complete — Streaming RAG Generation
+
+### Overview
+Implemented streaming grounded-answer generation using retrieval-augmented generation (RAG) with Groq-hosted Llama 3.1.
+
+Pipeline:
+question → retrieve relevant chunks → build grounded prompt → stream answer tokens via SSE → persist conversation to database.
+
+### LLM Provider
+- Provider: Groq
+- Model: llama-3.1-8b-instant
+- Streaming: enabled using Server-Sent Events (SSE)
+
+### Prompt Strategy
+- System prompt instructs the model to:
+  - answer only from provided context
+  - refuse if answer is not found in retrieved chunks
+  - cite page numbers when using information from the document
+- Retrieved chunks are formatted with page annotations before generation.
+
+### Retrieval + Streaming Behavior
+- `/query/stream` endpoint streams:
+  1. retrieved sources
+  2. generated token chunks
+  3. done event
+- Validation occurs before stream starts.
+- Errors during generation are handled gracefully and terminate the stream cleanly.
+
+### Persistence
+After generation completes:
+- user question saved to `messages`
+- assistant response saved to `messages`
+- assistant row stores retrieved sources metadata in `jsonb`
+
+### Verification
+Verified locally using uploaded robotics PDF.
+
+Example query:
+`What is RRT?`
+
+Observed behavior:
+- relevant chunks retrieved from Page 9
+- grounded answer streamed token-by-token
+- citation `(Page 9)` included in final response
+- conversation rows persisted successfully in Supabase
+
+### Notes
+- Groq replaced Gemini during development due to Gemini free-tier quota and billing friction.
+- Provider abstraction allowed migration with minimal architecture changes.
+- Streaming token chunks are provider-level partial outputs and are expected to appear fragmented during raw terminal testing.
+```
