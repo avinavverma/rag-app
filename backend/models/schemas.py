@@ -24,3 +24,16 @@ class ChunkRecord(BaseModel):
     char_start: int
     char_end: int
     embedding: Optional[list[float]] = None
+
+class RetrieveRequest(BaseModel):
+    question: str
+    document_id: str
+
+class RetrievedChunk(BaseModel):
+    chunk_id: str
+    page_number: int
+    content: str
+    similarity: float
+
+class RetrieveResponse(BaseModel):
+    chunks: list[RetrievedChunk]

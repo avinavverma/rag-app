@@ -61,20 +61,22 @@ def _get_model() -> SentenceTransformer:
     return _model
 
 def warm_up() -> None:
-    # load model into memory (call at startup to avoid first-request latency)
     _get_model()
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
-    """
-    Encode list[str] -> list[list[float]] using BGE model.
-    Returns normalized vectors of EMBEDDING_DIMENSION floats.
-    """
     if not texts:
         return []
-
     model = _get_model()
     vectors = model.encode(texts, normalize_embeddings=True)
-    # Ensure dimension correctness
     if vectors.shape[1] != EMBEDDING_DIMENSION:
         raise RuntimeError(f"Embedding dimension {vectors.shape[1]} != expected {EMBEDDING_DIMENSION}")
     return [v.tolist() for v in vectors]
+
+def embed_query(text: str) -> List[float]:
+    if not text or not text.strip():
+        raise ValueError("Question cannot be empty")
+    model = _get_model()
+    vector = model.encode(text, prompt_name="query", normalize_embeddings=True)
+    if vector.shape[0] != EMBEDDING_DIMENSION:
+        raise RuntimeError(f"Embedding dimension {vector.shape[0]} != expected {EMBEDDING_DIMENSION}")
+    return vector.tolist()
