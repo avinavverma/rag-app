@@ -1,13 +1,17 @@
-export default function HomePage() {
-  return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold">
-        Margin
-      </h1>
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
-      <p className="mt-4">
-        AI-powered document study workspace
-      </p>
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) redirect("/dashboard");
+
+  return (
+    <main>
+      <h1>Margin</h1>
+      <Link href="/login">Log in</Link>
+      <Link href="/signup">Sign up</Link>
     </main>
   );
 }
