@@ -447,3 +447,56 @@ This persistence layer will later support:
 Gemini provider was replaced with Groq due to Gemini free-tier quota and billing friction during development/testing.
 
 Streaming architecture, retrieval pipeline, prompt builder, and SSE contract remained unchanged because provider integration was isolated inside generator.py.
+
+```md
+## Segment 5 Complete — Streaming RAG Generation
+
+### Overview
+Implemented streaming grounded-answer generation using retrieval-augmented generation (RAG) with Groq-hosted Llama 3.1.
+
+Pipeline:
+question → retrieve relevant chunks → build grounded prompt → stream answer tokens via SSE → persist conversation to database.
+
+### LLM Provider
+- Provider: Groq
+- Model: llama-3.1-8b-instant
+- Streaming: enabled using Server-Sent Events (SSE)
+
+### Prompt Strategy
+- System prompt instructs the model to:
+  - answer only from provided context
+  - refuse if answer is not found in retrieved chunks
+  - cite page numbers when using information from the document
+- Retrieved chunks are formatted with page annotations before generation.
+
+### Retrieval + Streaming Behavior
+- `/query/stream` endpoint streams:
+  1. retrieved sources
+  2. generated token chunks
+  3. done event
+- Validation occurs before stream starts.
+- Errors during generation are handled gracefully and terminate the stream cleanly.
+
+### Persistence
+After generation completes:
+- user question saved to `messages`
+- assistant response saved to `messages`
+- assistant row stores retrieved sources metadata in `jsonb`
+
+### Verification
+Verified locally using uploaded robotics PDF.
+
+Example query:
+`What is RRT?`
+
+Observed behavior:
+- relevant chunks retrieved from Page 9
+- grounded answer streamed token-by-token
+- citation `(Page 9)` included in final response
+- conversation rows persisted successfully in Supabase
+
+### Notes
+- Groq replaced Gemini during development due to Gemini free-tier quota and billing friction.
+- Provider abstraction allowed migration with minimal architecture changes.
+- Streaming token chunks are provider-level partial outputs and are expected to appear fragmented during raw terminal testing.
+```
