@@ -566,3 +566,51 @@ Available values:
 `user.id` will be used in Segment 7 to populate the backend
 `x-user-id` header for temporary user isolation.
 
+## Segment 7 Started — Document Dashboard (2026-05-24)
+
+### Architecture Decisions
+
+### Document List
+
+Frontend dashboard document listing will use the Supabase browser client directly instead of a backend `GET /documents` endpoint.
+
+Reasons:
+
+* RLS already restricts rows to `auth.uid() = user_id`
+* Supabase client automatically sends the authenticated user's JWT
+* Avoids unnecessary backend proxy endpoints
+
+### Upload Flow
+
+PDF upload will use the backend ingest pipeline via:
+
+```txt id="jlwm4f"
+POST /ingest/upload
+```
+
+Frontend requests will include:
+
+```txt id="jlwm4g"
+x-user-id: <session user.id>
+```
+
+using the authenticated user returned by:
+
+```ts id="jlwm4h"
+useUser()
+```
+
+### Ingest Behavior
+
+Ingestion remains synchronous in Segment 7.
+
+Expected upload flow:
+
+* user selects PDF
+* frontend enters loading state
+* backend performs extraction + chunking + embeddings
+* frontend refreshes document list after completion
+
+Uploads may take multiple seconds depending on PDF size
+and embedding generation latency.
+
