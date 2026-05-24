@@ -500,3 +500,12 @@ Observed behavior:
 - Provider abstraction allowed migration with minimal architecture changes.
 - Streaming token chunks are provider-level partial outputs and are expected to appear fragmented during raw terminal testing.
 ```
+
+## Segment 6 Started — Auth
+
+Date: 25-05-26
+
+* Using Supabase Auth with email/password only
+* Using @supabase/ssr for App Router middleware cookie sessions
+* Backend still temporarily trusts x-user-id header until Segment 7
+* Email confirmation disabled during development for faster iteration
