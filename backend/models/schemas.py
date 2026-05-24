@@ -37,3 +37,8 @@ class RetrievedChunk(BaseModel):
 
 class RetrieveResponse(BaseModel):
     chunks: list[RetrievedChunk]
+
+
+class StreamRequest(BaseModel):
+    question: str
+    document_id: str
