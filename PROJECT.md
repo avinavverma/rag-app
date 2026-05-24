@@ -443,3 +443,7 @@ This persistence layer will later support:
 * citations
 * source cards
 * conversational UX
+
+Gemini provider was replaced with Groq due to Gemini free-tier quota and billing friction during development/testing.
+
+Streaming architecture, retrieval pipeline, prompt builder, and SSE contract remained unchanged because provider integration was isolated inside generator.py.

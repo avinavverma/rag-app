@@ -72,7 +72,7 @@ async def stream_query(body: StreamRequest, x_user_id: str = Header(..., alias="
         .execute()
     )
 
-    if not doc.data:
+    if not doc or not doc.data:
         raise HTTPException(status_code=404, detail="Document not found")
 
     if doc.data.get("status") != "ready":
@@ -110,7 +110,9 @@ async def stream_query(body: StreamRequest, x_user_id: str = Header(..., alias="
                 yield _sse({"type": "token", "token": token})
         except RuntimeError as e:
             yield _sse({"type": "token", "token": f"\n[Error: {e}]"})
-            raise
+
+            yield _sse({"type": "done"})
+            return
 
         answer_text = "".join(full_answer)
         save_conversation_turn(user_id, document_id, body.question, answer_text, sources_payload)
