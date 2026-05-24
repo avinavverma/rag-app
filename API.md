@@ -241,3 +241,36 @@ The ingestion pipeline currently uses local semantic embeddings via:
 - 384-dimensional normalized vectors
 
 Embeddings are generated locally during ingestion and stored in Supabase pgvector (`vector(384)`).
+
+## POST /query/retrieve
+
+Description:
+Retrieves the top 5 most similar chunks for a question scoped to one document.
+No LLM — retrieval only (Segment 4).
+
+Headers:
+x-user-id: string
+Content-Type: application/json
+
+Request Body:
+{
+  "question": "string",
+  "document_id": "uuid"
+}
+
+Response:
+{
+  "chunks": [
+    {
+      "chunk_id": "uuid",
+      "page_number": 1,
+      "content": "string",
+      "similarity": 0.87
+    }
+  ]
+}
+
+Notes:
+- similarity is cosine similarity in [0, 1] (higher = more relevant)
+- Returns at most 5 chunks, ordered by similarity descending
+- Filtered by both document_id and user_id
