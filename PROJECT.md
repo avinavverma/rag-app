@@ -286,3 +286,89 @@ Verification completed:
 - embedding dimension verified as 384
 - semantic similarity sanity check passed
 - ingestion pipeline successfully re-uploaded documents with real embeddings
+
+## Segment 4 Complete — Semantic Retrieval
+
+### Overview
+
+Implemented semantic retrieval using pgvector cosine similarity search with BAAI/bge-small-en-v1.5 embeddings.
+
+Users can now:
+
+* Upload PDFs
+* Store chunk embeddings in Supabase pgvector
+* Ask natural-language questions
+* Retrieve semantically relevant chunks from uploaded documents
+
+This segment intentionally excludes:
+
+* LLM answer generation
+* Streaming responses
+* Chat persistence
+* Frontend chat UI
+
+Focus was strictly on validating retrieval quality before introducing generation.
+
+---
+
+### Architecture
+
+Query flow:
+
+Question
+→ embed_query() using BGE query embeddings
+→ Supabase RPC match_chunks()
+→ cosine similarity search in pgvector
+→ top-k chunk retrieval
+
+Implemented:
+
+* `embed_query()` with `prompt_name="query"`
+* `retriever.py` retrieval service
+* `/query/retrieve` FastAPI endpoint
+* `match_chunks` PostgreSQL RPC function
+* Retrieval request/response schemas
+
+---
+
+### Verification Results
+
+Verified locally using robotics PDF examples.
+
+Example query:
+
+> "What is RRT?"
+
+Top retrieved chunk correctly returned:
+
+* Rapidly-exploring Random Tree (RRT)
+* algorithm steps
+* advantages
+* limitations
+
+Additional retrieval checks:
+
+* "What is graph based mapping?"
+* "What are the advantages of A* algorithm?"
+
+Results showed semantically relevant retrieval even when wording differed from document phrasing, confirming embeddings are functioning semantically rather than through naive keyword matching.
+
+---
+
+### Notes
+
+* Retrieval uses normalized 384-dimensional BGE embeddings
+* pgvector similarity search working correctly in both local and production environments
+* Generic course-header chunks occasionally appear in lower-ranked results due to small document size and top-k retrieval settings
+* PDF Unicode extraction still produces some malformed bullet characters (`â¢`) from source PDFs; retrieval quality unaffected
+
+---
+
+### Status
+
+Segment 4 retrieval pipeline is operational locally and ready for:
+
+* LLM answer generation
+* streaming responses
+* citation grounding
+* frontend chat integration
