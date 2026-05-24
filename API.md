@@ -316,3 +316,35 @@ data: {
   "type": "done"
 }
 ```
+---
+
+## Frontend Authentication (Segment 6)
+
+Frontend authentication now uses Supabase Auth with cookie-based sessions via `@supabase/ssr`.
+
+Frontend protected routes currently include:
+
+* `/dashboard`
+* `/workspace/:id`
+
+Unauthenticated users are redirected to `/login`.
+
+Authenticated users visiting `/login` or `/signup`
+are redirected to `/dashboard`.
+
+### Current Backend Auth Model
+
+Backend API routes still temporarily trust:
+
+```txt
+x-user-id: <uuid>
+```
+
+During Segment 7, frontend requests will populate this header
+using the authenticated Supabase session user ID obtained from:
+
+```ts
+useUser().userId
+```
+
+Full backend JWT verification will be added in a later segment.

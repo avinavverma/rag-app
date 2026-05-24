@@ -509,3 +509,60 @@ Date: 25-05-26
 * Using @supabase/ssr for App Router middleware cookie sessions
 * Backend still temporarily trusts x-user-id header until Segment 7
 * Email confirmation disabled during development for faster iteration
+
+## Segment 6 Complete — Frontend Authentication
+
+### Completed
+
+* Added Supabase email/password authentication
+* Migrated to `@supabase/ssr` App Router auth pattern
+* Added login and signup flows
+* Added protected dashboard route
+* Added middleware-based auth redirects
+* Added session-aware root page redirect
+* Added logout flow
+
+### Supabase SSR Pattern
+
+Frontend auth now uses:
+
+* `lib/supabase/client.ts` for browser/client components
+* `lib/supabase/server.ts` for server components and redirects
+* `lib/supabase/middleware.ts` for middleware session refresh
+
+### Protected Routes
+
+Current protected route patterns:
+
+* `/dashboard`
+* `/workspace/:id`
+
+Unauthenticated users are redirected to `/login`.
+
+Authenticated users visiting `/login` or `/signup`
+are redirected to `/dashboard`.
+
+### Email Confirmation
+
+Email confirmation is currently disabled during development
+for faster iteration and testing.
+
+This can be re-enabled later for production.
+
+### Session/User State
+
+Frontend auth state is exposed through:
+
+```ts
+useUser()
+```
+
+Available values:
+
+* `user`
+* `loading`
+* `userId`
+
+`user.id` will be used in Segment 7 to populate the backend
+`x-user-id` header for temporary user isolation.
+
