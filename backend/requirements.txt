@@ -7,3 +7,4 @@ pypdf
 python-multipart
 openai
 langchain-text-splitters
+sentence-transformers
