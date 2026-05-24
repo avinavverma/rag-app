@@ -12,6 +12,16 @@ load_dotenv()
 
 app = FastAPI(title="Margin Backend")
 
+from services.embedder import warm_up
+
+@app.on_event("startup")
+def on_startup():
+    try:
+        warm_up()
+    except Exception:
+        # do not crash startup if model load fails; log in real app
+        pass
+
 cors_origins = os.getenv(
     "CORS_ORIGINS",
     "http://localhost:3000"

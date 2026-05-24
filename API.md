@@ -231,3 +231,13 @@ Done event:
   "type": "done"
 }
 ```
+
+### Embedding Provider
+
+The ingestion pipeline currently uses local semantic embeddings via:
+
+- `sentence-transformers`
+- `BAAI/bge-small-en-v1.5`
+- 384-dimensional normalized vectors
+
+Embeddings are generated locally during ingestion and stored in Supabase pgvector (`vector(384)`).

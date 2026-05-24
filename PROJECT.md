@@ -257,3 +257,32 @@ Verified:
 
 Temporary mocked embeddings are currently used due to unavailable OpenAI API quota.
 The embedding interface remains swappable without architectural changes.
+
+## Segment 3.5 — Local Semantic Embeddings (BGE-384)
+
+Date: 2026-05-24
+
+The project migrated from temporary mocked embeddings / OpenAI-compatible 1536-dimensional vectors to local semantic embeddings using:
+
+- Model: `BAAI/bge-small-en-v1.5`
+- Provider: `sentence-transformers`
+- Embedding dimension: `384`
+
+A Supabase migration updated the `chunks.embedding` column from `vector(1536)` to `vector(384)`.
+
+Why this change:
+- eliminate OpenAI embedding API costs
+- enable fully local embedding generation
+- support meaningful semantic retrieval for Segment 4
+- improve development iteration speed
+
+Notes:
+- existing chunk embeddings were deleted during migration
+- PDFs must be re-uploaded/re-ingested after migration
+- `embed_texts()` interface remained unchanged, so the ingestion pipeline architecture did not require router changes
+
+Verification completed:
+- embeddings generated locally
+- embedding dimension verified as 384
+- semantic similarity sanity check passed
+- ingestion pipeline successfully re-uploaded documents with real embeddings
