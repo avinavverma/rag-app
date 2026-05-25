@@ -38,3 +38,11 @@ export interface ChatMessage {
   sources?: StreamSource[];
   isStreaming?: boolean; // assistant only
 }
+
+export interface DbMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources: StreamSource[] | null;
+  created_at: string;
+}
