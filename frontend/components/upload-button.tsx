@@ -1,28 +1,43 @@
 "use client";
 
-import { useRef, useState } from "react";
+import {
+  useRef,
+  useState,
+} from "react";
 
 import { uploadDocument } from "@/lib/api";
+
+import { LoadingState } from "@/components/loading-state";
 import { Button } from "@/components/ui/button";
 
 interface UploadButtonProps {
   userId: string;
-  onSuccess: () => Promise<void> | void;
+
+  onSuccess: () =>
+    | Promise<void>
+    | void;
 }
 
 export function UploadButton({
   userId,
   onSuccess,
 }: UploadButtonProps) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef =
+    useRef<HTMLInputElement | null>(
+      null
+    );
 
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] =
+    useState(false);
+
+  const [error, setError] =
+    useState<string | null>(null);
 
   async function handleFileChange(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
-    const file = e.target.files?.[0];
+    const file =
+      e.target.files?.[0];
 
     if (!file) return;
 
@@ -30,7 +45,11 @@ export function UploadButton({
     setError(null);
 
     try {
-      await uploadDocument(file, file.name, userId);
+      await uploadDocument(
+        file,
+        file.name,
+        userId
+      );
 
       await onSuccess();
     } catch (e) {
@@ -43,7 +62,8 @@ export function UploadButton({
       setUploading(false);
 
       if (inputRef.current) {
-        inputRef.current.value = "";
+        inputRef.current.value =
+          "";
       }
     }
   }
@@ -55,22 +75,45 @@ export function UploadButton({
         type="file"
         accept="application/pdf"
         className="hidden"
-        onChange={handleFileChange}
+        onChange={
+          handleFileChange
+        }
       />
 
       <Button
         disabled={uploading}
-        onClick={() => inputRef.current?.click()}
+        onClick={() =>
+          inputRef.current?.click()
+        }
       >
         {uploading
           ? "Processing PDF..."
           : "Upload PDF"}
       </Button>
 
+      {uploading && (
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <LoadingState label="Uploading and processing…" />
+        </div>
+      )}
+
       {error && (
-        <p className="text-sm text-red-500">
+        <div
+          className="text-sm text-red-600"
+          role="alert"
+        >
           {error}
-        </p>
+
+          <button
+            type="button"
+            className="ml-2 underline"
+            onClick={() =>
+              setError(null)
+            }
+          >
+            Dismiss
+          </button>
+        </div>
       )}
     </div>
   );

@@ -1,44 +1,72 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
 import { useRouter } from "next/navigation";
 
-import { useUser, signOut } from "@/lib/auth";
+import {
+  useUser,
+  signOut,
+} from "@/lib/auth";
+
 import { fetchDocuments } from "@/lib/documents";
 
 import { DocumentCard } from "@/components/document-card";
+import { LoadingState } from "@/components/loading-state";
 import { UploadButton } from "@/components/upload-button";
 import { Button } from "@/components/ui/button";
+
+import { useProcessingPoll } from "@/hooks/useProcessingPoll";
 
 import type { Document } from "@/types";
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useUser();
+  const {
+    user,
+    loading: authLoading,
+  } = useUser();
 
   const router = useRouter();
 
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [documents, setDocuments] =
+    useState<Document[]>([]);
 
-  const loadDocuments = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const [loading, setLoading] =
+    useState(true);
 
-    try {
-      const docs = await fetchDocuments();
+  const [error, setError] =
+    useState<string | null>(null);
 
-      setDocuments(docs);
-    } catch (e) {
-      setError(
-        e instanceof Error
-          ? e.message
-          : "Failed to load documents"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadDocuments =
+    useCallback(async () => {
+      setLoading(true);
+
+      setError(null);
+
+      try {
+        const docs =
+          await fetchDocuments();
+
+        setDocuments(docs);
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? e.message
+            : "Failed to load documents"
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+
+  useProcessingPoll(
+    documents,
+    loadDocuments
+  );
 
   useEffect(() => {
     if (user) {
@@ -56,13 +84,13 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <main className="p-6">
-        <p>Loading...</p>
+        <LoadingState label="Loading..." />
       </main>
     );
   }
 
   return (
-    <main className="p-6 space-y-6">
+    <main className="space-y-6 p-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold">
@@ -70,7 +98,8 @@ export default function DashboardPage() {
           </h1>
 
           <p className="text-sm text-gray-500">
-            Signed in as {user?.email}
+            Signed in as{" "}
+            {user?.email}
           </p>
         </div>
 
@@ -78,22 +107,39 @@ export default function DashboardPage() {
           {user && (
             <UploadButton
               userId={user.id}
-              onSuccess={loadDocuments}
+              onSuccess={
+                loadDocuments
+              }
             />
           )}
 
           <Button
             variant="outline"
-            onClick={handleSignOut}
+            onClick={
+              handleSignOut
+            }
           >
             Sign out
           </Button>
         </div>
       </header>
 
-      <div className="text-sm text-gray-500 break-all">
+      <div className="break-all text-sm text-gray-500">
         User ID: {user?.id}
       </div>
+
+      {documents.some(
+        (d) =>
+          d.status ===
+          "processing"
+      ) && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+          Processing
+          document… list
+          updates
+          automatically.
+        </p>
+      )}
 
       {error && (
         <div className="text-sm text-red-500">
@@ -102,22 +148,29 @@ export default function DashboardPage() {
       )}
 
       {loading ? (
-        <p>Loading documents...</p>
-      ) : documents.length === 0 ? (
-        <div className="border rounded-lg p-8 text-center text-gray-500">
-          No documents yet. Upload a PDF.
+        <LoadingState label="Loading documents..." />
+      ) : documents.length ===
+        0 ? (
+        <div className="rounded-lg border p-8 text-center text-gray-500">
+          No documents yet.
+          Upload a PDF.
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {documents.map((document) => (
-            <DocumentCard
-              key={document.id}
-              document={document}
-            />
-          ))}
+          {documents.map(
+            (document) => (
+              <DocumentCard
+                key={
+                  document.id
+                }
+                document={
+                  document
+                }
+              />
+            )
+          )}
         </div>
       )}
     </main>
   );
 }
-

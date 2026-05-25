@@ -1,17 +1,13 @@
 "use client";
 
 import Link from "next/link";
-
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { PdfViewer } from "@/components/pdf-viewer";
-
 import { ChatPanel } from "@/components/chat-panel";
+import { LoadingState } from "@/components/loading-state";
+import { ErrorState } from "@/components/error-state";
 
 import { useUser } from "@/lib/auth";
 
@@ -20,15 +16,22 @@ import {
   getDocumentPdfUrl,
 } from "@/lib/documents";
 
+import { fetchMessages } from "@/lib/messages";
+
 import type {
   ChatMessage,
   Document,
 } from "@/types";
 
+const DOC_POLL_MS = 2500;
+
 export function WorkspaceView() {
   const params = useParams();
 
-  const docId = params.docId as string;
+  const docId =
+    typeof params.docId === "string"
+      ? params.docId
+      : "";
 
   const {
     user,
@@ -39,6 +42,9 @@ export function WorkspaceView() {
     useState<Document | null>(null);
 
   const [pdfUrl, setPdfUrl] =
+    useState<string | null>(null);
+
+  const [pdfError, setPdfError] =
     useState<string | null>(null);
 
   const [loading, setLoading] =
@@ -53,43 +59,86 @@ export function WorkspaceView() {
   const [messages, setMessages] =
     useState<ChatMessage[]>([]);
 
-  useEffect(() => {
-    async function loadWorkspace() {
-      try {
-        setLoading(true);
-        setError(null);
+  const [messagesLoading, setMessagesLoading] =
+    useState(false);
 
+  const loadPdf = useCallback(
+    async (filePath: string) => {
+      setPdfError(null);
+
+      try {
+        const signedUrl =
+          await getDocumentPdfUrl(
+            filePath
+          );
+
+        setPdfUrl(signedUrl);
+      } catch (e) {
+        setPdfUrl(null);
+
+        setPdfError(
+          e instanceof Error
+            ? e.message
+            : "Failed to load PDF"
+        );
+      }
+    },
+    []
+  );
+
+  const loadWorkspace = useCallback(
+    async () => {
+      if (!docId) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
         const doc =
           await fetchDocumentById(
             docId
           );
 
         if (!doc) {
-          throw new Error(
-            "Document not found"
+          setError(
+            "Document not found."
           );
-        }
 
-        if (doc.status !== "ready") {
-          throw new Error(
-            "Document is still processing or failed."
-          );
-        }
+          setDocument(null);
 
-        if (!doc.file_path) {
-          throw new Error(
-            "PDF file not found."
-          );
+          return;
         }
-
-        const signedUrl =
-          await getDocumentPdfUrl(
-            doc.file_path
-          );
 
         setDocument(doc);
 
-        setPdfUrl(signedUrl);
+        if (
+          doc.status === "failed"
+        ) {
+          setError(
+            "This document failed to process. Upload it again from the dashboard."
+          );
+
+          return;
+        }
+
+        if (
+          doc.status ===
+          "processing"
+        ) {
+          return;
+        }
+
+        if (!doc.file_path) {
+          setError(
+            "PDF file not found."
+          );
+
+          return;
+        }
+
+        await loadPdf(
+          doc.file_path
+        );
       } catch (e) {
         setError(
           e instanceof Error
@@ -99,44 +148,162 @@ export function WorkspaceView() {
       } finally {
         setLoading(false);
       }
-    }
+    },
+    [docId, loadPdf]
+  );
 
+  useEffect(() => {
     if (docId) {
-      loadWorkspace();
+      void loadWorkspace();
     }
-  }, [docId]);
+  }, [docId, loadWorkspace]);
 
-  if (authLoading || loading) {
+  useEffect(() => {
+    if (
+      !docId ||
+      document?.status !==
+        "processing"
+    ) {
+      return;
+    }
+
+    const id = setInterval(
+      async () => {
+        const doc =
+          await fetchDocumentById(
+            docId
+          );
+
+        if (!doc) return;
+
+        setDocument(doc);
+
+        if (
+          doc.status === "ready" &&
+          doc.file_path
+        ) {
+          clearInterval(id);
+
+          setLoading(true);
+
+          await loadPdf(
+            doc.file_path
+          );
+
+          setLoading(false);
+        }
+
+        if (
+          doc.status === "failed"
+        ) {
+          clearInterval(id);
+
+          setError(
+            "Document processing failed."
+          );
+        }
+      },
+      DOC_POLL_MS
+    );
+
+    return () =>
+      clearInterval(id);
+  }, [
+    docId,
+    document?.status,
+    loadPdf,
+  ]);
+
+  useEffect(() => {
+    if (
+      !docId ||
+      document?.status !== "ready"
+    ) {
+      return;
+    }
+
+    async function loadHistory() {
+      setMessagesLoading(true);
+
+      try {
+        const history =
+          await fetchMessages(
+            docId
+          );
+
+        setMessages(history);
+      } catch (e) {
+        console.error(
+          "Failed to load messages",
+          e
+        );
+      } finally {
+        setMessagesLoading(false);
+      }
+    }
+
+    void loadHistory();
+  }, [docId, document?.status]);
+
+  if (
+    authLoading ||
+    (loading && !document)
+  ) {
     return (
-      <main className="p-6">
-        <p>Loading workspace...</p>
+      <main className="min-h-screen">
+        <LoadingState label="Loading workspace..." />
       </main>
     );
   }
 
-  if (error) {
+  if (
+    error &&
+    document?.status !==
+      "processing"
+  ) {
     return (
-      <main className="p-6">
-        <p className="text-red-500">
-          {error}
+      <main className="min-h-screen">
+        <ErrorState
+          message={error}
+          onRetry={() =>
+            void loadWorkspace()
+          }
+        />
+      </main>
+    );
+  }
+
+  if (
+    document?.status ===
+    "processing"
+  ) {
+    return (
+      <main className="min-h-screen">
+        <LoadingState label="Processing document… This updates automatically." />
+
+        <p className="pb-8 text-center text-sm text-gray-500">
+          <Link
+            href="/dashboard"
+            className="underline"
+          >
+            Back to dashboard
+          </Link>
         </p>
       </main>
     );
   }
 
-  if (!document || !pdfUrl) {
+  if (!document) {
     return (
-      <main className="p-6">
-        <p>
-          Failed to load document.
-        </p>
+      <main className="min-h-screen">
+        <ErrorState message="Document unavailable." />
       </main>
     );
   }
 
   return (
-    <main className="flex h-screen flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-4">
+    <main className="flex h-screen flex-col overflow-hidden">
+      <header className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <Link
             href="/dashboard"
@@ -145,7 +312,7 @@ export function WorkspaceView() {
             ← Back to dashboard
           </Link>
 
-          <h1 className="mt-1 text-xl font-semibold">
+          <h1 className="mt-1 text-lg font-semibold sm:text-xl">
             {document.name}
           </h1>
         </div>
@@ -155,36 +322,56 @@ export function WorkspaceView() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-1/2 border-r p-4">
-          <PdfViewer
-            fileUrl={pdfUrl}
-            pageNumber={currentPage}
-            onPageChange={
-              setCurrentPage
-            }
-          />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b p-3 lg:w-1/2 lg:border-b-0 lg:border-r lg:p-4 max-lg:h-[45vh] max-lg:min-h-[280px] max-lg:flex-none">
+          {pdfError ? (
+            <ErrorState
+              title="PDF failed to load"
+              message={pdfError}
+              onRetry={() =>
+                document.file_path &&
+                loadPdf(
+                  document.file_path
+                )
+              }
+              backHref="/dashboard"
+            />
+          ) : pdfUrl ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <PdfViewer
+                fileUrl={pdfUrl}
+                pageNumber={
+                  currentPage
+                }
+                onPageChange={
+                  setCurrentPage
+                }
+              />
+            </div>
+          ) : (
+            <LoadingState label="Loading PDF..." />
+          )}
         </div>
 
-        <div className="w-1/2 p-4">
-          {user ? (
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-3 lg:w-1/2 lg:p-4">
+          {messagesLoading ? (
+            <LoadingState label="Loading conversation..." />
+          ) : user ? (
             <ChatPanel
-              documentId={document.id}
+              documentId={
+                document.id
+              }
               userId={user.id}
               messages={messages}
               onMessagesChange={
                 setMessages
               }
-              onCitationClick={(
-                page
-              ) =>
-                setCurrentPage(page)
+              onCitationClick={
+                setCurrentPage
               }
             />
           ) : (
-            <p className="text-sm text-gray-500">
-              Loading user...
-            </p>
+            <LoadingState label="Loading user..." />
           )}
         </div>
       </div>

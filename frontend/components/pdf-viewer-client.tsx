@@ -100,8 +100,9 @@ export function PdfViewer({
       if (
         typeof window ===
         "undefined"
-      )
+      ) {
         return;
+      }
 
       if (
         await probeUrl(LOCAL_WORKER)
@@ -113,7 +114,9 @@ export function PdfViewer({
         pdfjs.GlobalWorkerOptions.workerSrc =
           `${LOCAL_WORKER}?t=${stamp}`;
 
-        setWorkerUrl(LOCAL_WORKER);
+        setWorkerUrl(
+          LOCAL_WORKER
+        );
 
         setWorkerStamp(stamp);
 
@@ -130,7 +133,9 @@ export function PdfViewer({
         pdfjs.GlobalWorkerOptions.workerSrc =
           `${CDN_WORKER}?t=${stamp}`;
 
-        setWorkerUrl(CDN_WORKER);
+        setWorkerUrl(
+          CDN_WORKER
+        );
 
         setWorkerStamp(stamp);
 
@@ -157,36 +162,48 @@ export function PdfViewer({
   }, []);
 
   useEffect(() => {
-    if (!scrollContainerRef.current) {
+    const container =
+      scrollContainerRef.current;
+
+    if (!container) {
       return;
     }
 
     const pageElement =
-      scrollContainerRef.current.querySelector(
+      container.querySelector(
         `[data-page-number="${pageNumber}"]`
-      );
+      ) as HTMLElement | null;
 
-    if (pageElement) {
-      pageElement.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+    if (!pageElement) {
+      return;
     }
+
+    const top =
+      pageElement.offsetTop -
+      container.offsetTop;
+
+    container.scrollTo({
+      top,
+      behavior: "smooth",
+    });
   }, [pageNumber]);
 
   if (!workerUrl) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
-        Initializing PDF worker...
+        Initializing PDF
+        worker...
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       <div
-        ref={scrollContainerRef}
-        className="flex-1 overflow-auto rounded-lg border bg-gray-50 p-4"
+        ref={
+          scrollContainerRef
+        }
+        className="min-h-0 flex-1 overflow-auto rounded-lg border bg-gray-50 p-4"
       >
         <Document
           key={`${fileUrl}:${workerStamp}`}
@@ -194,15 +211,24 @@ export function PdfViewer({
           onLoadSuccess={({
             numPages,
           }) =>
-            setNumPages(numPages)
+            setNumPages(
+              numPages
+            )
           }
           loading={
-            <p>Loading PDF...</p>
+            <p>
+              Loading PDF...
+            </p>
           }
           error={
-            <p>
-              Failed to load PDF.
-            </p>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              Failed to load
+              PDF. The link
+              may have
+              expired —
+              refresh the
+              page.
+            </div>
           }
         >
           {numPages ? (
@@ -217,8 +243,12 @@ export function PdfViewer({
                 className="mb-6 flex justify-center"
               >
                 <Page
-                  pageNumber={i + 1}
-                  width={pageWidth}
+                  pageNumber={
+                    i + 1
+                  }
+                  width={
+                    pageWidth
+                  }
                   renderTextLayer={
                     false
                   }
