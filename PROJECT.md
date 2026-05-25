@@ -706,3 +706,90 @@ onPageChange(pageNumber)
 ```
 
 for citation-based page jumps.
+
+
+## Segment 8 Complete — PDF Workspace Viewer (2026-05-25)
+
+### Completed Features
+
+* Workspace route:
+
+  ```txt
+  /workspace/[docId]
+  ```
+
+* Two-column workspace layout:
+
+  * Left: PDF viewer
+  * Right: placeholder chat panel for Segment 9
+
+* Signed Supabase Storage URLs for authenticated PDF access
+
+* `fetchDocumentById()` helper added
+
+* PDF rendering using:
+
+  * `react-pdf@9.1.1`
+  * `pdfjs-dist@4.4.168`
+
+### Worker Setup
+
+PDF.js worker served from:
+
+```txt
+/public/pdf.worker.min.mjs
+```
+
+Worker configured client-side via:
+
+```ts
+pdfjs.GlobalWorkerOptions.workerSrc =
+  "/pdf.worker.min.mjs";
+```
+
+### Storage Security
+
+Applied authenticated read policy for private `pdfs` bucket:
+
+* users may only access files under their own `user_id/` folder
+* signed URLs use 1 hour expiration
+
+### Rendering / Next.js Notes
+
+Encountered compatibility issues with:
+
+* Next.js 16
+* react-pdf
+* pdfjs-dist
+* SSR evaluation
+
+Final stable setup:
+
+* dynamic import with:
+
+  ```ts
+  ssr: false
+  ```
+* dedicated `pdf-viewer-client.tsx`
+* worker initialization inside `useEffect`
+* webpack dev mode:
+
+  ```bash
+  npm run dev -- --webpack
+  ```
+
+Additional stability fixes:
+
+* disabled text layer rendering
+* disabled annotation layer rendering
+
+### Verification
+
+Verified:
+
+* authenticated PDF viewing
+* signed URL generation
+* page rendering
+* workspace navigation
+* protected workspace route
+* Supabase Storage access control

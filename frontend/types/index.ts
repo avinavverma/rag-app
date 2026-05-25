@@ -12,3 +12,12 @@ export interface UploadResponse {
   document_id: string;
   status: "processing" | "ready";
 }
+
+export interface Document {
+  id: string;
+  name: string;
+  status: DocumentStatus;
+  page_count: number | null;
+  file_path: string | null;
+  created_at: string;
+}
