@@ -870,3 +870,22 @@ Verified:
 * workspace remains responsive during streaming
 * authenticated querying works end-to-end
 * SSE parsing stable in browser
+
+## Segment 10 Complete — Polish, Error States, and Logging (YYYY-MM-DD)
+
+### Completed
+- Shared LoadingState / ErrorState components
+- Dashboard processing poll (3s) + non-clickable processing/failed cards
+- Workspace processing poll + message history load
+- Chat empty state + stream error on assistant bubble
+- Backend timing logs: ingest_upload, retrieve_chunks, stream_retrieve, stream_generate
+- Mobile stacked workspace layout (lg: side-by-side)
+
+### Verified
+- [ ] Upload failure shows error on dashboard
+- [ ] Processing doc auto-updates to ready without refresh
+- [ ] Workspace reload shows prior messages
+- [ ] Stream failure shows error in chat
+- [ ] PDF error shows retry
+- [ ] Railway logs show duration_ms lines
+- [ ] iPhone-width layout acceptable
