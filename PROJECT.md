@@ -793,3 +793,80 @@ Verified:
 * workspace navigation
 * protected workspace route
 * Supabase Storage access control
+
+
+## Segment 9 Complete — Streaming Chat Workspace (2026-05-25)
+
+### Completed Features
+
+* Real-time streaming chat panel integrated into workspace view
+
+* SSE frontend client for `/query/stream`
+
+* Incremental token rendering during generation
+
+* Source citation cards rendered beneath assistant responses
+
+* Citation click → smooth PDF page navigation
+
+* Shared workspace state:
+
+  * current PDF page
+  * chat messages
+  * citation navigation
+
+### Frontend Streaming Architecture
+
+Added:
+
+* `streamQuery()` SSE parser in `frontend/lib/api.ts`
+* `useStream()` hook with:
+
+  * streaming state
+  * AbortController support
+  * error handling
+
+SSE event handling:
+
+1. `sources`
+2. `token`
+3. `done`
+
+### Chat UI
+
+Added:
+
+* `ChatPanel`
+* `SourceCard`
+
+Features:
+
+* user / assistant bubbles
+* streaming placeholder state
+* disabled send during streaming
+* auto-scroll to newest messages
+* source previews with page references
+
+### PDF Citation Navigation
+
+PDF pages now include:
+
+```txt id="gsgmgg"
+data-page-number
+```
+
+Citation clicks:
+
+* update shared `currentPage`
+* smoothly scroll viewer to referenced page
+
+### Verification
+
+Verified:
+
+* streaming answers render incrementally
+* sources appear correctly
+* source clicks jump to correct PDF page
+* workspace remains responsive during streaming
+* authenticated querying works end-to-end
+* SSE parsing stable in browser

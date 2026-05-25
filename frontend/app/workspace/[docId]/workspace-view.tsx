@@ -1,28 +1,39 @@
 "use client";
 
 import Link from "next/link";
+
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 import { PdfViewer } from "@/components/pdf-viewer";
 
+import { ChatPanel } from "@/components/chat-panel";
+
 import { useUser } from "@/lib/auth";
+
 import {
   fetchDocumentById,
   getDocumentPdfUrl,
 } from "@/lib/documents";
 
-import type { Document } from "@/types";
+import type {
+  ChatMessage,
+  Document,
+} from "@/types";
 
 export function WorkspaceView() {
   const params = useParams();
 
-  const docId =
-    typeof params.docId === "string"
-      ? params.docId
-      : "";
+  const docId = params.docId as string;
 
-  const { user, loading: authLoading } = useUser();
+  const {
+    user,
+    loading: authLoading,
+  } = useUser();
 
   const [document, setDocument] =
     useState<Document | null>(null);
@@ -30,41 +41,45 @@ export function WorkspaceView() {
   const [pdfUrl, setPdfUrl] =
     useState<string | null>(null);
 
-  const [currentPage, setCurrentPage] =
-    useState(1);
-
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
     useState<string | null>(null);
 
+  const [currentPage, setCurrentPage] =
+    useState(1);
+
+  const [messages, setMessages] =
+    useState<ChatMessage[]>([]);
+
   useEffect(() => {
-    if (!user || !docId) return;
-
     async function loadWorkspace() {
-      setLoading(true);
-      setError(null);
-
       try {
+        setLoading(true);
+        setError(null);
+
         const doc =
-          await fetchDocumentById(docId);
+          await fetchDocumentById(
+            docId
+          );
 
         if (!doc) {
-          setError("Document not found.");
-          return;
+          throw new Error(
+            "Document not found"
+          );
         }
 
         if (doc.status !== "ready") {
-          setError(
+          throw new Error(
             "Document is still processing or failed."
           );
-          return;
         }
 
         if (!doc.file_path) {
-          setError("PDF file not found.");
-          return;
+          throw new Error(
+            "PDF file not found."
+          );
         }
 
         const signedUrl =
@@ -73,6 +88,7 @@ export function WorkspaceView() {
           );
 
         setDocument(doc);
+
         setPdfUrl(signedUrl);
       } catch (e) {
         setError(
@@ -85,27 +101,22 @@ export function WorkspaceView() {
       }
     }
 
-    loadWorkspace();
-  }, [user, docId]);
+    if (docId) {
+      loadWorkspace();
+    }
+  }, [docId]);
 
   if (authLoading || loading) {
     return (
       <main className="p-6">
-        <p>Loading document...</p>
+        <p>Loading workspace...</p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="p-6 space-y-4">
-        <Link
-          href="/dashboard"
-          className="text-sm underline"
-        >
-          ← Back to dashboard
-        </Link>
-
+      <main className="p-6">
         <p className="text-red-500">
           {error}
         </p>
@@ -116,41 +127,65 @@ export function WorkspaceView() {
   if (!document || !pdfUrl) {
     return (
       <main className="p-6">
-        <p>Document unavailable.</p>
+        <p>
+          Failed to load document.
+        </p>
       </main>
     );
   }
 
   return (
-    <main className="h-screen flex flex-col">
-      <header className="border-b px-6 py-4 flex items-center justify-between">
-        <div className="space-y-1">
+    <main className="flex h-screen flex-col">
+      <header className="flex items-center justify-between border-b px-6 py-4">
+        <div>
           <Link
             href="/dashboard"
-            className="text-sm underline"
+            className="text-sm text-gray-500 hover:underline"
           >
             ← Back to dashboard
           </Link>
 
-          <h1 className="text-2xl font-bold">
+          <h1 className="mt-1 text-xl font-semibold">
             {document.name}
           </h1>
         </div>
+
+        <div className="text-sm text-gray-500">
+          Page {currentPage}
+        </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <div className="w-1/2 border-r p-4">
           <PdfViewer
             fileUrl={pdfUrl}
             pageNumber={currentPage}
-            onPageChange={setCurrentPage}
+            onPageChange={
+              setCurrentPage
+            }
           />
         </div>
 
-        <div className="w-1/2 p-4 text-gray-500">
-          <div className="border rounded-lg h-full p-6">
-            Chat panel — Segment 9
-          </div>
+        <div className="w-1/2 p-4">
+          {user ? (
+            <ChatPanel
+              documentId={document.id}
+              userId={user.id}
+              messages={messages}
+              onMessagesChange={
+                setMessages
+              }
+              onCitationClick={(
+                page
+              ) =>
+                setCurrentPage(page)
+              }
+            />
+          ) : (
+            <p className="text-sm text-gray-500">
+              Loading user...
+            </p>
+          )}
         </div>
       </div>
     </main>

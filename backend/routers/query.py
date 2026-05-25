@@ -109,8 +109,6 @@ async def stream_query(body: StreamRequest, x_user_id: str = Header(..., alias="
                 full_answer.append(token)
                 yield _sse({"type": "token", "token": token})
         except RuntimeError as e:
-            yield _sse({"type": "token", "token": f"\n[Error: {e}]"})
-
             yield _sse({"type": "done"})
             return
 

@@ -363,3 +363,10 @@ POST /ingest/upload
 ```
 
 through the FastAPI backend.
+
+
+### Segment 9 Notes
+
+Frontend now consumes `POST /query/stream` via Server-Sent Events (SSE).
+
+No backend API contract changes were introduced in Segment 9.
