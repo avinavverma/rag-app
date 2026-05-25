@@ -566,3 +566,105 @@ Available values:
 `user.id` will be used in Segment 7 to populate the backend
 `x-user-id` header for temporary user isolation.
 
+## Segment 7 Started — Document Dashboard (2026-05-24)
+
+### Architecture Decisions
+
+### Document List
+
+Frontend dashboard document listing will use the Supabase browser client directly instead of a backend `GET /documents` endpoint.
+
+Reasons:
+
+* RLS already restricts rows to `auth.uid() = user_id`
+* Supabase client automatically sends the authenticated user's JWT
+* Avoids unnecessary backend proxy endpoints
+
+### Upload Flow
+
+PDF upload will use the backend ingest pipeline via:
+
+```txt id="jlwm4f"
+POST /ingest/upload
+```
+
+Frontend requests will include:
+
+```txt id="jlwm4g"
+x-user-id: <session user.id>
+```
+
+using the authenticated user returned by:
+
+```ts id="jlwm4h"
+useUser()
+```
+
+### Ingest Behavior
+
+Ingestion remains synchronous in Segment 7.
+
+Expected upload flow:
+
+* user selects PDF
+* frontend enters loading state
+* backend performs extraction + chunking + embeddings
+* frontend refreshes document list after completion
+
+Uploads may take multiple seconds depending on PDF size
+and embedding generation latency.
+
+
+## Segment 7 Complete — Document Dashboard (2026-05-24)
+
+### Completed
+
+* Added authenticated document dashboard
+* Added PDF upload flow from frontend to backend ingest pipeline
+* Added document cards and status badges
+* Added workspace route navigation
+* Added shared frontend API/types layer
+* Added upload loading and error states
+
+### Document List Source
+
+Dashboard document listing now reads directly from Supabase
+using the authenticated browser session.
+
+RLS policies restrict documents to the logged-in user.
+
+No backend `GET /documents` proxy endpoint is currently used
+by the frontend dashboard.
+
+### Upload Architecture
+
+Frontend uploads PDFs through:
+
+```txt id="’wini5e"
+POST /ingest/upload
+```
+
+using:
+
+```txt id="’wini5f"
+x-user-id: <session user.id>
+```
+
+The backend ingest pipeline performs:
+
+* PDF extraction
+* chunking
+* embeddings
+* chunk insertion
+* document status updates
+
+### Verification
+
+Verified end-to-end locally in browser:
+
+* authenticated upload flow
+* synchronous ingest completion
+* document list refresh
+* workspace navigation
+* Supabase document/chunk persistence
+* error handling for invalid uploads/backend failures

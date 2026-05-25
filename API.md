@@ -348,3 +348,18 @@ useUser().userId
 ```
 
 Full backend JWT verification will be added in a later segment.
+
+
+---
+
+## Dashboard Document Source (Segment 7)
+
+Frontend dashboard document listing reads directly from Supabase using the authenticated browser session and RLS policies.
+
+Document upload continues to use:
+
+```txt id="jlwm3g"
+POST /ingest/upload
+```
+
+through the FastAPI backend.
