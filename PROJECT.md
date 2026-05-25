@@ -668,3 +668,128 @@ Verified end-to-end locally in browser:
 * workspace navigation
 * Supabase document/chunk persistence
 * error handling for invalid uploads/backend failures
+
+
+## Segment 8 Started — PDF Viewer Workspace (2026-05-25)
+
+### Planned Features
+
+* PDF rendering using `react-pdf` and `pdfjs-dist`
+* Signed Supabase Storage URLs for authenticated PDF viewing
+* Two-column workspace layout
+* Left panel: PDF viewer
+* Right panel: reserved for chat interface in Segment 9
+
+### Storage Access Model
+
+The `pdfs` bucket remains private.
+
+Frontend access will use:
+
+* authenticated Supabase session
+* signed URLs with 1 hour TTL
+
+Users may only read PDFs inside their own storage folder:
+
+```txt id="’wini65"
+{user_id}/{document_id}/source.pdf
+```
+
+### Workspace State Design
+
+PDF page state will be controlled by the workspace parent component.
+
+This allows future Segment 9 chat citations to trigger:
+
+```ts id="’wini66"
+onPageChange(pageNumber)
+```
+
+for citation-based page jumps.
+
+
+## Segment 8 Complete — PDF Workspace Viewer (2026-05-25)
+
+### Completed Features
+
+* Workspace route:
+
+  ```txt
+  /workspace/[docId]
+  ```
+
+* Two-column workspace layout:
+
+  * Left: PDF viewer
+  * Right: placeholder chat panel for Segment 9
+
+* Signed Supabase Storage URLs for authenticated PDF access
+
+* `fetchDocumentById()` helper added
+
+* PDF rendering using:
+
+  * `react-pdf@9.1.1`
+  * `pdfjs-dist@4.4.168`
+
+### Worker Setup
+
+PDF.js worker served from:
+
+```txt
+/public/pdf.worker.min.mjs
+```
+
+Worker configured client-side via:
+
+```ts
+pdfjs.GlobalWorkerOptions.workerSrc =
+  "/pdf.worker.min.mjs";
+```
+
+### Storage Security
+
+Applied authenticated read policy for private `pdfs` bucket:
+
+* users may only access files under their own `user_id/` folder
+* signed URLs use 1 hour expiration
+
+### Rendering / Next.js Notes
+
+Encountered compatibility issues with:
+
+* Next.js 16
+* react-pdf
+* pdfjs-dist
+* SSR evaluation
+
+Final stable setup:
+
+* dynamic import with:
+
+  ```ts
+  ssr: false
+  ```
+* dedicated `pdf-viewer-client.tsx`
+* worker initialization inside `useEffect`
+* webpack dev mode:
+
+  ```bash
+  npm run dev -- --webpack
+  ```
+
+Additional stability fixes:
+
+* disabled text layer rendering
+* disabled annotation layer rendering
+
+### Verification
+
+Verified:
+
+* authenticated PDF viewing
+* signed URL generation
+* page rendering
+* workspace navigation
+* protected workspace route
+* Supabase Storage access control
