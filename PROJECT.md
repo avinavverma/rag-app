@@ -614,3 +614,57 @@ Expected upload flow:
 Uploads may take multiple seconds depending on PDF size
 and embedding generation latency.
 
+
+## Segment 7 Complete — Document Dashboard (2026-05-24)
+
+### Completed
+
+* Added authenticated document dashboard
+* Added PDF upload flow from frontend to backend ingest pipeline
+* Added document cards and status badges
+* Added workspace route navigation
+* Added shared frontend API/types layer
+* Added upload loading and error states
+
+### Document List Source
+
+Dashboard document listing now reads directly from Supabase
+using the authenticated browser session.
+
+RLS policies restrict documents to the logged-in user.
+
+No backend `GET /documents` proxy endpoint is currently used
+by the frontend dashboard.
+
+### Upload Architecture
+
+Frontend uploads PDFs through:
+
+```txt id="’wini5e"
+POST /ingest/upload
+```
+
+using:
+
+```txt id="’wini5f"
+x-user-id: <session user.id>
+```
+
+The backend ingest pipeline performs:
+
+* PDF extraction
+* chunking
+* embeddings
+* chunk insertion
+* document status updates
+
+### Verification
+
+Verified end-to-end locally in browser:
+
+* authenticated upload flow
+* synchronous ingest completion
+* document list refresh
+* workspace navigation
+* Supabase document/chunk persistence
+* error handling for invalid uploads/backend failures
