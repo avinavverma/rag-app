@@ -668,3 +668,41 @@ Verified end-to-end locally in browser:
 * workspace navigation
 * Supabase document/chunk persistence
 * error handling for invalid uploads/backend failures
+
+
+## Segment 8 Started — PDF Viewer Workspace (2026-05-25)
+
+### Planned Features
+
+* PDF rendering using `react-pdf` and `pdfjs-dist`
+* Signed Supabase Storage URLs for authenticated PDF viewing
+* Two-column workspace layout
+* Left panel: PDF viewer
+* Right panel: reserved for chat interface in Segment 9
+
+### Storage Access Model
+
+The `pdfs` bucket remains private.
+
+Frontend access will use:
+
+* authenticated Supabase session
+* signed URLs with 1 hour TTL
+
+Users may only read PDFs inside their own storage folder:
+
+```txt id="’wini65"
+{user_id}/{document_id}/source.pdf
+```
+
+### Workspace State Design
+
+PDF page state will be controlled by the workspace parent component.
+
+This allows future Segment 9 chat citations to trigger:
+
+```ts id="’wini66"
+onPageChange(pageNumber)
+```
+
+for citation-based page jumps.
