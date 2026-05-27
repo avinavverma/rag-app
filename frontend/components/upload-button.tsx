@@ -5,9 +5,13 @@ import {
   useState,
 } from "react";
 
+import {
+  Loader2,
+  Upload,
+} from "lucide-react";
+
 import { uploadDocument } from "@/lib/api";
 
-import { LoadingState } from "@/components/loading-state";
 import { Button } from "@/components/ui/button";
 
 interface UploadButtonProps {
@@ -42,6 +46,7 @@ export function UploadButton({
     if (!file) return;
 
     setUploading(true);
+
     setError(null);
 
     try {
@@ -86,27 +91,42 @@ export function UploadButton({
           inputRef.current?.click()
         }
       >
-        {uploading
-          ? "Processing PDF..."
-          : "Upload PDF"}
+        {uploading ? (
+          <>
+            <Loader2 className="size-4 animate-spin" />
+
+            <span>
+              Processing…
+            </span>
+          </>
+        ) : (
+          <>
+            <Upload className="size-4" />
+
+            <span>
+              Upload PDF
+            </span>
+          </>
+        )}
       </Button>
 
       {uploading && (
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <LoadingState label="Uploading and processing…" />
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Uploading and
+          processing…
+        </p>
       )}
 
       {error && (
         <div
-          className="text-sm text-red-600"
+          className="text-sm text-destructive"
           role="alert"
         >
           {error}
 
           <button
             type="button"
-            className="ml-2 underline"
+            className="ml-2 text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
             onClick={() =>
               setError(null)
             }

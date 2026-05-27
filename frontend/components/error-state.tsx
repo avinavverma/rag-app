@@ -1,4 +1,10 @@
 import Link from "next/link";
+
+import {
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 interface ErrorStateProps {
@@ -18,18 +24,40 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div className="mx-auto max-w-md space-y-4 p-6 text-center">
-      <h2 className="text-lg font-semibold text-red-600">{title}</h2>
-      <p className="text-sm text-gray-600">{message}</p>
+      <div className="flex flex-col items-center gap-2">
+        <AlertCircle
+          className="size-6 text-destructive"
+          aria-hidden
+        />
+
+        <h2 className="text-base font-semibold text-destructive">
+          {title}
+        </h2>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        {message}
+      </p>
+
       <div className="flex flex-wrap items-center justify-center gap-3">
         {onRetry && (
-          <Button type="button" onClick={onRetry}>
+          <Button
+            type="button"
+            onClick={onRetry}
+          >
             Try again
           </Button>
         )}
+
         <Link
           href={backHref}
-          className="text-sm text-gray-500 underline hover:text-black"
+          className="inline-flex items-center text-sm text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
         >
+          <ArrowLeft
+            className="mr-1 size-4"
+            aria-hidden
+          />
+
           {backLabel}
         </Link>
       </div>

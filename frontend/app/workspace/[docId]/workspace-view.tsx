@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
 import { useParams } from "next/navigation";
 
 import { PdfViewer } from "@/components/pdf-viewer";
@@ -29,7 +34,8 @@ export function WorkspaceView() {
   const params = useParams();
 
   const docId =
-    typeof params.docId === "string"
+    typeof params.docId ===
+      "string"
       ? params.docId
       : "";
 
@@ -39,31 +45,45 @@ export function WorkspaceView() {
   } = useUser();
 
   const [document, setDocument] =
-    useState<Document | null>(null);
+    useState<Document | null>(
+      null
+    );
 
   const [pdfUrl, setPdfUrl] =
-    useState<string | null>(null);
+    useState<string | null>(
+      null
+    );
 
   const [pdfError, setPdfError] =
-    useState<string | null>(null);
+    useState<string | null>(
+      null
+    );
 
   const [loading, setLoading] =
     useState(true);
 
   const [error, setError] =
-    useState<string | null>(null);
+    useState<string | null>(
+      null
+    );
 
-  const [currentPage, setCurrentPage] =
-    useState(1);
+  const [
+    currentPage,
+    setCurrentPage,
+  ] = useState(1);
 
   const [messages, setMessages] =
     useState<ChatMessage[]>([]);
 
-  const [messagesLoading, setMessagesLoading] =
-    useState(false);
+  const [
+    messagesLoading,
+    setMessagesLoading,
+  ] = useState(false);
 
   const loadPdf = useCallback(
-    async (filePath: string) => {
+    async (
+      filePath: string
+    ) => {
       setPdfError(null);
 
       try {
@@ -86,11 +106,12 @@ export function WorkspaceView() {
     []
   );
 
-  const loadWorkspace = useCallback(
-    async () => {
+  const loadWorkspace =
+    useCallback(async () => {
       if (!docId) return;
 
       setLoading(true);
+
       setError(null);
 
       try {
@@ -112,7 +133,8 @@ export function WorkspaceView() {
         setDocument(doc);
 
         if (
-          doc.status === "failed"
+          doc.status ===
+          "failed"
         ) {
           setError(
             "This document failed to process. Upload it again from the dashboard."
@@ -148,9 +170,7 @@ export function WorkspaceView() {
       } finally {
         setLoading(false);
       }
-    },
-    [docId, loadPdf]
-  );
+    }, [docId, loadPdf]);
 
   useEffect(() => {
     if (docId) {
@@ -162,7 +182,7 @@ export function WorkspaceView() {
     if (
       !docId ||
       document?.status !==
-        "processing"
+      "processing"
     ) {
       return;
     }
@@ -179,7 +199,8 @@ export function WorkspaceView() {
         setDocument(doc);
 
         if (
-          doc.status === "ready" &&
+          doc.status ===
+          "ready" &&
           doc.file_path
         ) {
           clearInterval(id);
@@ -194,7 +215,8 @@ export function WorkspaceView() {
         }
 
         if (
-          doc.status === "failed"
+          doc.status ===
+          "failed"
         ) {
           clearInterval(id);
 
@@ -217,7 +239,8 @@ export function WorkspaceView() {
   useEffect(() => {
     if (
       !docId ||
-      document?.status !== "ready"
+      document?.status !==
+      "ready"
     ) {
       return;
     }
@@ -238,7 +261,9 @@ export function WorkspaceView() {
           e
         );
       } finally {
-        setMessagesLoading(false);
+        setMessagesLoading(
+          false
+        );
       }
     }
 
@@ -250,7 +275,7 @@ export function WorkspaceView() {
     (loading && !document)
   ) {
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-background">
         <LoadingState label="Loading workspace..." />
       </main>
     );
@@ -259,10 +284,10 @@ export function WorkspaceView() {
   if (
     error &&
     document?.status !==
-      "processing"
+    "processing"
   ) {
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-background">
         <ErrorState
           message={error}
           onRetry={() =>
@@ -278,13 +303,13 @@ export function WorkspaceView() {
     "processing"
   ) {
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-background">
         <LoadingState label="Processing document… This updates automatically." />
 
-        <p className="pb-8 text-center text-sm text-gray-500">
+        <p className="pb-8 text-center text-sm text-muted-foreground">
           <Link
             href="/dashboard"
-            className="underline"
+            className="text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
           >
             Back to dashboard
           </Link>
@@ -295,35 +320,40 @@ export function WorkspaceView() {
 
   if (!document) {
     return (
-      <main className="min-h-screen">
+      <main className="min-h-screen bg-background">
         <ErrorState message="Document unavailable." />
       </main>
     );
   }
 
   return (
-    <main className="flex h-screen flex-col overflow-hidden">
-      <header className="flex flex-col gap-2 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div>
-          <Link
-            href="/dashboard"
-            className="text-sm text-gray-500 hover:underline"
-          >
-            ← Back to dashboard
-          </Link>
+    <main className="flex h-screen flex-col overflow-hidden bg-background">
+      <header className="shrink-0 border-b border-border bg-background px-4 py-4 sm:px-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="flex size-9 items-center justify-center rounded-full border border-white/10 bg-[#111111] text-[#b3b3b3] transition-colors duration-150 hover:bg-[#1a1a1a] hover:text-white"
+              aria-label="Back to dashboard"
+            >
+              <span className="-mt-[1px] ml-[1px] text-[17px] leading-none">
+                ←
+              </span>
+            </Link>
 
-          <h1 className="mt-1 text-lg font-semibold sm:text-xl">
-            {document.name}
-          </h1>
-        </div>
+            <h1 className="text-lg font-semibold text-foreground sm:text-xl">
+              {document.name}
+            </h1>
+          </div>
 
-        <div className="text-sm text-gray-500">
-          Page {currentPage}
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage}
+          </div>
         </div>
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden lg:flex-row">
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b p-3 lg:w-1/2 lg:border-b-0 lg:border-r lg:p-4 max-lg:h-[45vh] max-lg:min-h-[280px] max-lg:flex-none">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-border p-3 lg:w-[60%] lg:flex-none lg:border-b-0 lg:border-r lg:border-border lg:p-4 max-lg:h-[45vh] max-lg:min-h-[280px] max-lg:flex-none">
           {pdfError ? (
             <ErrorState
               title="PDF failed to load"
@@ -353,7 +383,7 @@ export function WorkspaceView() {
           )}
         </div>
 
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-3 lg:w-1/2 lg:p-4">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-3 lg:w-[40%] lg:flex-none lg:p-4">
           {messagesLoading ? (
             <LoadingState label="Loading conversation..." />
           ) : user ? (

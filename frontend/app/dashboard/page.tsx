@@ -17,6 +17,7 @@ import { fetchDocuments } from "@/lib/documents";
 
 import { DocumentCard } from "@/components/document-card";
 import { LoadingState } from "@/components/loading-state";
+import { MarginLogo } from "@/components/margin-logo";
 import { UploadButton } from "@/components/upload-button";
 import { Button } from "@/components/ui/button";
 
@@ -83,94 +84,102 @@ export default function DashboardPage() {
 
   if (authLoading) {
     return (
-      <main className="p-6">
-        <LoadingState label="Loading..." />
+      <main className="min-h-screen bg-bg-base">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+          <LoadingState label="Loading..." />
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="space-y-6 p-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold">
-            Dashboard
-          </h1>
+    <main className="min-h-screen bg-bg-base">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 space-y-6">
+        <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-4">
+            <div className="pb-1">
+              <MarginLogo
+                size="md"
+                href="/dashboard"
+              />
+            </div>
 
-          <p className="text-sm text-gray-500">
-            Signed in as{" "}
-            {user?.email}
-          </p>
-        </div>
+            <div className="space-y-4">
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                Dashboard
+              </h1>
 
-        <div className="flex items-center gap-3">
-          {user && (
-            <UploadButton
-              userId={user.id}
-              onSuccess={
-                loadDocuments
-              }
-            />
-          )}
+              <p className="mt-1 text-sm text-muted-foreground">
+                Signed in as{" "}
+                {user?.email}
+              </p>
+            </div>
+          </div>
 
-          <Button
-            variant="outline"
-            onClick={
-              handleSignOut
-            }
-          >
-            Sign out
-          </Button>
-        </div>
-      </header>
-
-      <div className="break-all text-sm text-gray-500">
-        User ID: {user?.id}
-      </div>
-
-      {documents.some(
-        (d) =>
-          d.status ===
-          "processing"
-      ) && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
-          Processing
-          document… list
-          updates
-          automatically.
-        </p>
-      )}
-
-      {error && (
-        <div className="text-sm text-red-500">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <LoadingState label="Loading documents..." />
-      ) : documents.length ===
-        0 ? (
-        <div className="rounded-lg border p-8 text-center text-gray-500">
-          No documents yet.
-          Upload a PDF.
-        </div>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {documents.map(
-            (document) => (
-              <DocumentCard
-                key={
-                  document.id
-                }
-                document={
-                  document
+          <div className="flex items-center gap-3">
+            {user && (
+              <UploadButton
+                userId={user.id}
+                onSuccess={
+                  loadDocuments
                 }
               />
-            )
+            )}
+
+            <Button
+              variant="outline"
+              onClick={
+                handleSignOut
+              }
+            >
+              Sign out
+            </Button>
+          </div>
+        </header>
+
+        {documents.some(
+          (d) =>
+            d.status ===
+            "processing"
+        ) && (
+            <p className="rounded-md border border-[var(--status-processing-bg)] bg-[var(--status-processing-bg)] px-3 py-2 text-sm text-[var(--status-processing-text)]">
+              Processing document…
+              list updates
+              automatically.
+            </p>
           )}
-        </div>
-      )}
+
+        {error && (
+          <div className="text-sm text-[var(--destructive)]">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <LoadingState label="Loading documents..." />
+        ) : documents.length ===
+          0 ? (
+          <div className="rounded-md border border-border-default bg-bg-card p-8 text-center text-text-secondary">
+            No documents yet.
+            Upload a PDF.
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {documents.map(
+              (document) => (
+                <DocumentCard
+                  key={
+                    document.id
+                  }
+                  document={
+                    document
+                  }
+                />
+              )
+            )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

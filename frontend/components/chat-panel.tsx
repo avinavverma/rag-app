@@ -6,6 +6,8 @@ import React, {
   useState,
 } from "react";
 
+import { Send } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 import { SourceCard } from "@/components/source-card";
@@ -68,12 +70,12 @@ export function ChatPanel({
       prev.map((msg) =>
         msg.isStreaming
           ? {
-              ...msg,
-              isStreaming: false,
-              content:
-                msg.content ||
-                `Error: ${error}`,
-            }
+            ...msg,
+            isStreaming: false,
+            content:
+              msg.content ||
+              `Error: ${error}`,
+          }
           : msg
       )
     );
@@ -91,23 +93,23 @@ export function ChatPanel({
     }
 
     const userMessage: ChatMessage =
-      {
-        id: crypto.randomUUID(),
-        role: "user",
-        content: trimmed,
-      };
+    {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: trimmed,
+    };
 
     const assistantMessageId =
       crypto.randomUUID();
 
     const assistantMessage: ChatMessage =
-      {
-        id: assistantMessageId,
-        role: "assistant",
-        content: "",
-        sources: [],
-        isStreaming: true,
-      };
+    {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+      sources: [],
+      isStreaming: true,
+    };
 
     onMessagesChange((prev) => [
       ...prev,
@@ -129,11 +131,11 @@ export function ChatPanel({
             (prev) =>
               prev.map((msg) =>
                 msg.id ===
-                assistantMessageId
+                  assistantMessageId
                   ? {
-                      ...msg,
-                      sources,
-                    }
+                    ...msg,
+                    sources,
+                  }
                   : msg
               )
           );
@@ -146,13 +148,13 @@ export function ChatPanel({
             (prev) =>
               prev.map((msg) =>
                 msg.id ===
-                assistantMessageId
+                  assistantMessageId
                   ? {
-                      ...msg,
-                      content:
-                        msg.content +
-                        token,
-                    }
+                    ...msg,
+                    content:
+                      msg.content +
+                      token,
+                  }
                   : msg
               )
           );
@@ -163,11 +165,11 @@ export function ChatPanel({
             (prev) =>
               prev.map((msg) =>
                 msg.id ===
-                assistantMessageId
+                  assistantMessageId
                   ? {
-                      ...msg,
-                      isStreaming: false,
-                    }
+                    ...msg,
+                    isStreaming: false,
+                  }
                   : msg
               )
           );
@@ -178,12 +180,12 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1 space-y-4 overflow-y-auto pr-2">
+      <div className="chat-scroll flex-1 space-y-6 overflow-y-auto px-2">
         {messages.length ===
           0 &&
           !isStreaming && (
-            <div className="flex h-full min-h-[200px] flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center text-sm text-gray-500">
-              <p className="font-medium text-gray-700">
+            <div className="flex h-full min-h-[200px] flex-col items-center justify-center rounded-md border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">
                 No messages yet
               </p>
 
@@ -204,27 +206,18 @@ export function ChatPanel({
           (message) => (
             <div
               key={message.id}
-              className={`flex ${
-                message.role ===
+              className={`flex ${message.role ===
                 "user"
-                  ? "justify-end"
-                  : "justify-start"
-              }`}
+                ? "justify-end"
+                : "justify-start"
+                }`}
             >
               <div
-                className={`
-                max-w-[85%]
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                ${
-                  message.role ===
+                className={`max-w-fit rounded-full px-6 py-3 text-[15px] ${message.role ===
                   "user"
-                    ? "bg-black text-white"
-                    : "bg-gray-100 text-black"
-                }
-              `}
+                  ? "rounded-full border border-white/10 bg-[#111111] text-white"
+                  : "bg-transparent text-foreground"
+                  }`}
               >
                 <p className="whitespace-pre-wrap">
                   {message.content ||
@@ -236,7 +229,7 @@ export function ChatPanel({
                 {message.sources &&
                   message.sources
                     .length > 0 && (
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4 flex flex-wrap gap-2">
                       {message.sources.map(
                         (
                           source
@@ -268,31 +261,21 @@ export function ChatPanel({
         />
       </div>
 
-      <div className="mt-4 border-t pt-4">
-        <div className="flex gap-2">
+      <div className="mt-4 border-t border-white/5 pt-4">
+        <div className="flex items-center rounded-full border border-white/10 bg-[#111111] pl-4 pr-1.5">
           <textarea
+            rows={1}
             value={question}
             onChange={(e) =>
               setQuestion(
                 e.target.value
               )
             }
-            placeholder="Ask a question..."
+            placeholder="Ask a question"
             disabled={
               isStreaming
             }
-            className="
-              min-h-[60px]
-              flex-1
-              resize-none
-              rounded-lg
-              border
-              p-3
-              text-sm
-              outline-none
-              focus:ring-2
-              focus:ring-black
-            "
+            className="chat-input flex-1 resize-none bg-transparent px-0 py-[11px] text-[15px] leading-[1.2] text-foreground placeholder:text-muted-foreground outline-none"
           />
 
           <Button
@@ -303,17 +286,28 @@ export function ChatPanel({
               isStreaming ||
               !question.trim()
             }
+            size="icon"
+            className="size-8 rounded-full bg-[#d9d9d9] text-black transition-colors hover:bg-white"
           >
-            Send
+            <Send
+              className="size-4"
+              aria-hidden
+            />
+
+            <span className="sr-only">
+              Send
+            </span>
           </Button>
         </div>
 
         {error && (
-          <p className="mt-2 text-sm text-red-500">
+          <p className="mt-2 text-sm text-destructive">
             {error}
           </p>
         )}
       </div>
+
+
     </div>
   );
 }

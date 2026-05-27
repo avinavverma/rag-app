@@ -16,31 +16,31 @@ export function SourceCard({
       type="button"
       onClick={onClick}
       className="
-        w-full
-        rounded-lg
+        inline-flex
+        items-center
+        gap-3
+        rounded-full
         border
-        p-3
-        text-left
-        transition
-        hover:bg-gray-50
+        border-white/10
+        bg-[#0b0b0b]
+        px-4
+        py-2
+        text-sm
+        text-foreground/80
+        transition-colors
+        duration-150
+        hover:bg-white/[0.04]
+        hover:text-white
         focus:outline-none
-        focus:ring-2
-        focus:ring-black
       "
     >
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium">
-          Page {source.page_number}
-        </span>
+      <span className="font-medium">
+        Page {source.page_number}
+      </span>
 
-        <span className="text-xs text-gray-500">
-          {(source.similarity * 100).toFixed(1)}%
-        </span>
-      </div>
-
-      <p className="line-clamp-3 text-sm text-gray-700">
-        {source.content}
-      </p>
+      <span className="text-foreground/40">
+        {(source.similarity * 100).toFixed(0)}%
+      </span>
     </button>
   );
 }

@@ -72,8 +72,8 @@ export function PdfViewer({
   useEffect(() => {
     function handleResize() {
       const w = Math.min(
-        window.innerWidth * 0.4,
-        700
+        window.innerWidth * 0.58,
+        1100
       );
 
       setPageWidth(w);
@@ -190,7 +190,7 @@ export function PdfViewer({
 
   if (!workerUrl) {
     return (
-      <div className="flex flex-1 items-center justify-center p-4">
+      <div className="flex flex-1 items-center justify-center p-4 text-sm text-muted-foreground">
         Initializing PDF
         worker...
       </div>
@@ -203,7 +203,7 @@ export function PdfViewer({
         ref={
           scrollContainerRef
         }
-        className="min-h-0 flex-1 overflow-auto rounded-lg border bg-gray-50 p-4"
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
       >
         <Document
           key={`${fileUrl}:${workerStamp}`}
@@ -221,7 +221,7 @@ export function PdfViewer({
             </p>
           }
           error={
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-md border border-destructive bg-[var(--status-failed-bg)] p-4 text-sm text-destructive">
               Failed to load
               PDF. The link
               may have
@@ -240,7 +240,7 @@ export function PdfViewer({
                 data-page-number={
                   i + 1
                 }
-                className="mb-6 flex justify-center"
+                className="mb-2"
               >
                 <Page
                   pageNumber={

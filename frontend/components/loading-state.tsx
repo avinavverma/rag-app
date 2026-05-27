@@ -1,3 +1,5 @@
+import { Loader2 } from "lucide-react";
+
 interface LoadingStateProps {
   label?: string;
   className?: string;
@@ -9,14 +11,15 @@ export function LoadingState({
 }: LoadingStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center gap-3 p-8 text-sm text-gray-500 ${className}`}
+      className={`flex flex-col items-center justify-center gap-3 p-8 text-sm text-muted-foreground ${className}`}
       role="status"
       aria-live="polite"
     >
-      <div
-        className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-black"
+      <Loader2
+        className="size-6 animate-spin text-muted-foreground"
         aria-hidden
       />
+
       <p>{label}</p>
     </div>
   );
