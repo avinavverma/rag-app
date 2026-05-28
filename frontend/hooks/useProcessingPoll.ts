@@ -7,7 +7,7 @@ const POLL_MS = 3000;
 
 export function useProcessingPoll(
   documents: Document[],
-  onRefresh: () => void | Promise<void>
+  onRefresh: (silent?: boolean) => void | Promise<void>
 ) {
   const hasProcessing = documents.some(
     (d) => d.status === "processing"
@@ -15,13 +15,51 @@ export function useProcessingPoll(
   const onRefreshRef = useRef(onRefresh);
   onRefreshRef.current = onRefresh;
 
+  const intervalIdRef = useRef<number | null>(null);
+
   useEffect(() => {
-    if (!hasProcessing) return;
+    if (!hasProcessing) {
+      if (intervalIdRef.current !== null) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
+      }
+      return;
+    }
 
-    const id = setInterval(() => {
-      void onRefreshRef.current();
-    }, POLL_MS);
+    function startInterval() {
+      if (intervalIdRef.current !== null) return;
+      intervalIdRef.current = window.setInterval(() => {
+        if (document.visibilityState === "visible") {
+          void onRefreshRef.current?.(true);
+        }
+      }, POLL_MS);
+    }
 
-    return () => clearInterval(id);
+    function stopInterval() {
+      if (intervalIdRef.current !== null) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        startInterval();
+      } else {
+        stopInterval();
+      }
+    }
+
+    // start only if visible now
+    if (typeof document !== "undefined" && document.visibilityState === "visible") {
+      startInterval();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stopInterval();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [hasProcessing]);
 }

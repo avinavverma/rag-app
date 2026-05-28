@@ -42,38 +42,33 @@ export default function DashboardPage() {
   const [error, setError] =
     useState<string | null>(null);
 
-  const loadDocuments =
-    useCallback(async () => {
-      setLoading(true);
-
+  const loadDocuments = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
       setError(null);
 
       try {
-        const docs =
-          await fetchDocuments();
-
+        const docs = await fetchDocuments();
         setDocuments(docs);
       } catch (e) {
         setError(
-          e instanceof Error
-            ? e.message
-            : "Failed to load documents"
+          e instanceof Error ? e.message : "Failed to load documents"
         );
       } finally {
-        setLoading(false);
+        if (!silent) setLoading(false);
       }
-    }, []);
-
-  useProcessingPoll(
-    documents,
-    loadDocuments
+    },
+    []
   );
 
+  // poll uses a silent refresh so it doesn't show the global loading UI
+  useProcessingPoll(documents, () => loadDocuments(true));
+
   useEffect(() => {
-    if (user) {
+    if (user?.id || documents.length > 0) {
       loadDocuments();
     }
-  }, [user, loadDocuments]);
+  }, [user?.id, loadDocuments]);
 
   async function handleSignOut() {
     await signOut();
@@ -82,7 +77,7 @@ export default function DashboardPage() {
     router.refresh();
   }
 
-  if (authLoading) {
+  if (authLoading && !user) {
     return (
       <main className="min-h-screen bg-bg-base">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
