@@ -2,7 +2,7 @@
 
 AI-powered PDF question answering with retrieval-augmented generation (RAG), streaming responses, and page-level citations.
 
-**Live Demo:** https://use-trace.vercel.app
+**Live Application:** https://use-trace.vercel.app
 
 ## Overview
 
