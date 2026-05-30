@@ -889,3 +889,47 @@ Verified:
 - [ ] PDF error shows retry
 - [ ] Railway logs show duration_ms lines
 - [ ] iPhone-width layout acceptable
+
+## Segment 11 Complete
+
+Date: 2026-05-30
+
+### Deliverables
+
+* Public project README
+* Architecture diagram
+* Documentation assets structure
+* Deployment verification checklist
+* Repository branding updated to trace
+
+### Deployment Targets
+
+Frontend:
+https://use-trace.vercel.app
+
+Backend:
+https://rag-app-production-6307.up.railway.app
+
+### Verification Checklist
+
+* [ ] Signup
+* [ ] Login
+* [ ] Dashboard load
+* [ ] PDF upload
+* [ ] Processing completion
+* [ ] Workspace open
+* [ ] Streaming response generation
+* [ ] Source citation display
+* [ ] Citation page navigation
+* [ ] Logout
+
+### Current Limitations
+
+* PDF-only ingestion
+* No OCR support
+* Synchronous document processing
+* No multi-document retrieval
+
+### Notes
+
+Segment 11 focused exclusively on documentation, architecture visibility, deployment verification, and repository presentation. No product features, API contracts, schema definitions, or retrieval logic were modified.
