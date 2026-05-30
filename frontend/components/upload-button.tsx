@@ -74,7 +74,7 @@ export function UploadButton({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="relative">
       <input
         ref={inputRef}
         type="file"
@@ -86,55 +86,49 @@ export function UploadButton({
       />
 
       <Button
+        className="w-[170px]"
         disabled={uploading}
         onClick={() =>
           inputRef.current?.click()
         }
       >
         {uploading ? (
-          <>
+          <div className="flex items-center justify-center gap-2">
             <Loader2 className="size-4 animate-spin" />
-
-            <span>
-              Processing…
-            </span>
-          </>
+            <span>Processing…</span>
+          </div>
         ) : (
-          <>
+          <div className="flex items-center justify-center gap-2">
             <Upload className="size-4" />
-
-            <span>
-              Upload PDF
-            </span>
-          </>
+            <span>Upload PDF</span>
+          </div>
         )}
       </Button>
 
-      {uploading && (
-        <p className="text-sm text-muted-foreground">
-          Uploading and
-          processing…
-        </p>
-      )}
-
-      {error && (
-        <div
-          className="text-sm text-destructive"
-          role="alert"
-        >
-          {error}
-
-          <button
-            type="button"
-            className="ml-2 text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
-            onClick={() =>
-              setError(null)
-            }
+      <div className="absolute left-0 top-full mt-2 h-5 text-sm whitespace-nowrap">
+        {uploading ? (
+          <p className="text-muted-foreground">
+            Uploading and processing…
+          </p>
+        ) : error ? (
+          <div
+            className="text-destructive"
+            role="alert"
           >
-            Dismiss
-          </button>
-        </div>
-      )}
+            {error}
+
+            <button
+              type="button"
+              className="ml-2 text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
+              onClick={() =>
+                setError(null)
+              }
+            >
+              Dismiss
+            </button>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

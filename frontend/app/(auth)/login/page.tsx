@@ -74,7 +74,7 @@ export default function LoginPage() {
 
           <p className="text-sm text-muted-foreground">
             Sign in to your
-            Margin account
+            trace account
           </p>
         </div>
 

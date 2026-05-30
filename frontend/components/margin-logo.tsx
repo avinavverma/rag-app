@@ -43,7 +43,7 @@ export function MarginLogo({
       />
 
       <span className={styles.text}>
-        Margin
+        trace
       </span>
     </>
   );

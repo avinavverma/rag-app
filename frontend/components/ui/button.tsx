@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
   [
-    "inline-flex items-center justify-center",
+    "inline-flex items-center justify-center cursor-pointer",
     "shrink-0 whitespace-nowrap",
     "rounded-2xl",
     "text-sm font-medium",
     "transition-colors duration-150",
     "outline-none",
     "select-none",
-    "disabled:pointer-events-none disabled:opacity-50",
+    "disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50",
     "focus-visible:ring-1",
     "focus-visible:ring-ring",
     "[&_svg]:pointer-events-none",

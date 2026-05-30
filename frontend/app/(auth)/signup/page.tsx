@@ -74,7 +74,7 @@ export default function SignupPage() {
 
           <p className="text-sm text-muted-foreground">
             Create your
-            Margin account
+            trace account
           </p>
         </div>
 

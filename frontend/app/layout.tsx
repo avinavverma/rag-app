@@ -22,7 +22,7 @@ const geistMono =
 
 export const metadata: Metadata =
   {
-    title: "Margin",
+    title: "trace",
     description:
       "AI-powered document study workspace",
   };
