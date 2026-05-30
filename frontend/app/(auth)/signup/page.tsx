@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { MarginLogo } from "@/components/margin-logo";
+// import { MarginLogo } from "@/components/margin-logo";
 import { Button } from "@/components/ui/button";
 
 import { createClient } from "@/lib/supabase/client";
@@ -61,37 +61,27 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-md border border-border bg-card p-6 space-y-6">
-        <div className="space-y-2">
-          <MarginLogo
-            size="lg"
-          />
+  <div className="min-h-screen flex flex-col items-center justify-center px-4">
+    <div className="w-full max-w-md">
+      <h1 className="mb-8 text-center text-6xl font-semibold tracking-tight text-foreground">
+        trace
+      </h1>
 
-          <h1 className="text-2xl font-semibold text-foreground">
+      <div className="mx-auto w-full max-w-[420px] rounded-md border border-border bg-card/80 backdrop-blur-md p-6 space-y-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold text-foreground text-center">
             Sign up
           </h1>
-
-          <p className="text-sm text-muted-foreground">
-            Create your
-            trace account
-          </p>
         </div>
 
         <form
-          onSubmit={
-            handleSubmit
-          }
+          onSubmit={handleSubmit}
           className="space-y-4"
         >
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Email
-            </label>
-
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="Email"
               value={email}
               onChange={(e) =>
                 setEmail(
@@ -104,13 +94,11 @@ export default function SignupPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Password
-            </label>
+            <div className="h-2" />
 
             <input
               type="password"
-              placeholder="Create a password"
+              placeholder="Password"
               value={password}
               onChange={(e) =>
                 setPassword(
@@ -122,11 +110,13 @@ export default function SignupPage() {
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-destructive">
+          {/* {error && ( */}
+            <p className="h-5 text-sm text-destructive">
               {error}
             </p>
-          )}
+          {/* )} */}
+
+          {/* <div className="h-2" /> */}
 
           <Button
             type="submit"
@@ -150,6 +140,7 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
-    </main>
-  );
+    </div>
+  </div>
+);
 }

@@ -263,3 +263,41 @@
   width: 0;
   height: 0;
 }
+
+@keyframes bg-drift {
+  0% {
+    transform: scale(1.2) translate(0px, 0px);
+  }
+
+  12.5% {
+    transform: scale(1.2) translate(15px, -8px);
+  }
+
+  25% {
+    transform: scale(1.2) translate(25px, -20px);
+  }
+
+  37.5% {
+    transform: scale(1.2) translate(15px, -32px);
+  }
+
+  50% {
+    transform: scale(1.2) translate(0px, -40px);
+  }
+
+  62.5% {
+    transform: scale(1.2) translate(-15px, -32px);
+  }
+
+  75% {
+    transform: scale(1.2) translate(-25px, -20px);
+  }
+
+  87.5% {
+    transform: scale(1.2) translate(-15px, -8px);
+  }
+
+  100% {
+    transform: scale(1.2) translate(0px, 0px);
+  }
+}

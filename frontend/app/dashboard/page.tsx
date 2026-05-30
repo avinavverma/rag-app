@@ -79,7 +79,7 @@ export default function DashboardPage() {
 
   if (authLoading && !user) {
     return (
-      <main className="min-h-screen bg-bg-base">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
           <LoadingState label="Loading..." />
         </div>
@@ -154,7 +154,7 @@ export default function DashboardPage() {
           <LoadingState label="Loading documents..." />
         ) : documents.length ===
           0 ? (
-          <div className="rounded-md border border-border-default bg-bg-card p-8 text-center text-text-secondary">
+          <div className="rounded-md border border-border-default bg-bg-card/80 backdrop-blur-md p-8 text-center text-text-secondary">
             No documents yet.
             Upload a PDF.
           </div>

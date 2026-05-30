@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { MarginLogo } from "@/components/margin-logo";
+// import { MarginLogo } from "@/components/margin-logo";
 import { Button } from "@/components/ui/button";
 
 import { createClient } from "@/lib/supabase/client";
@@ -61,95 +61,86 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-md border border-border bg-card p-6 space-y-6">
-        <div className="space-y-2">
-          <MarginLogo
-            size="lg"
-          />
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        <h1 className="mb-8 text-center text-6xl font-semibold tracking-tight text-foreground">
+          trace
+        </h1>
 
-          <h1 className="text-2xl font-semibold text-foreground">
-            Log in
-          </h1>
+        <div className="mx-auto w-full max-w-[420px] rounded-md border border-border bg-card/80 backdrop-blur-md p-6 space-y-6">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground text-center">
+              Log in
+            </h1>
+          </div>
 
-          <p className="text-sm text-muted-foreground">
-            Sign in to your
-            trace account
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) =>
+                  setEmail(
+                    e.target.value
+                  )
+                }
+                required
+                className="w-full resize-none rounded-md border border-border bg-secondary px-3 py-2 text-base text-foreground placeholder:text-muted-foreground outline-none transition-[border-color] duration-150 focus:border-accent disabled:opacity-50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="h-2" />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) =>
+                  setPassword(
+                    e.target.value
+                  )
+                }
+                required
+                className="w-full resize-none rounded-md border border-border bg-secondary px-3 py-2 text-base text-foreground placeholder:text-muted-foreground outline-none transition-[border-color] duration-150 focus:border-accent disabled:opacity-50"
+              />
+            </div>
+
+            {/* {error && ( */}
+              <p className=" h-5 text-sm text-destructive">
+                {error ?? ""}
+              </p>
+            {/* )} */}
+
+            {/* <div className="h-2" /> */}
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+            >
+              {loading
+                ? "Logging in..."
+                : "Log in"}
+            </Button>
+          </form>
+
+          <p className="text-sm text-center text-muted-foreground">
+            Don&apos;t have an
+            account?{" "}
+            <Link
+              href="/signup"
+              className="text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
+            >
+              Sign up
+            </Link>
           </p>
         </div>
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="space-y-4"
-        >
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Email
-            </label>
-
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
-              required
-              className="w-full resize-none rounded-md border border-border bg-secondary px-3 py-2 text-base text-foreground placeholder:text-muted-foreground outline-none transition-[border-color] duration-150 focus:border-accent disabled:opacity-50"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Password
-            </label>
-
-            <input
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-              required
-              className="w-full resize-none rounded-md border border-border bg-secondary px-3 py-2 text-base text-foreground placeholder:text-muted-foreground outline-none transition-[border-color] duration-150 focus:border-accent disabled:opacity-50"
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-destructive">
-              {error}
-            </p>
-          )}
-
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={loading}
-          >
-            {loading
-              ? "Logging in..."
-              : "Log in"}
-          </Button>
-        </form>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Don&apos;t have an
-          account?{" "}
-          <Link
-            href="/signup"
-            className="text-muted-foreground underline transition-colors duration-150 hover:text-foreground"
-          >
-            Sign up
-          </Link>
-        </p>
       </div>
-    </main>
+    </div>
   );
 }
