@@ -13,7 +13,7 @@ export default function DashboardLayout({
         }}
       />
 
-      <div className="absolute inset-0 bg-black/95" />
+      <div className="absolute inset-0 bg-black/80" />
 
       <div className="relative z-10">
         {children}

@@ -67,7 +67,7 @@ export default function LoginPage() {
           trace
         </h1>
 
-        <div className="mx-auto w-full max-w-[420px] rounded-md border border-border bg-card/80 backdrop-blur-md p-6 space-y-6">
+        <div className="mx-auto w-full max-w-[420px] rounded-md border border-white/10 bg-card/65 backdrop-blur-xl p-6 space-y-6">
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold text-foreground text-center">
               Log in
