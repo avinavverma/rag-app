@@ -70,7 +70,7 @@ Question
 
 Demo media will be added here.
 
-![Demo](docs/demo.gif)
+![Demo](docs/demo.mp4)
 
 The demo showcases:
 
@@ -80,6 +80,8 @@ The demo showcases:
 * Workspace interaction
 * Streaming answer generation
 * Citation click and page navigation
+* Deletion of pdf
+* User logout
 
 ## Tech Stack
 
