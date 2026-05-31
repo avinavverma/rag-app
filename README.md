@@ -68,8 +68,6 @@ Question
 
 ## Demo
 
-Demo media will be added here.
-
 ![Demo](docs/demo.mp4)
 
 The demo showcases:
