@@ -68,7 +68,7 @@ Question
 
 ## Demo
 
-![Demo](docs/demo.mp4)
+[Demo Video](./docs/demo.mp4)
 
 The demo showcases:
 
