@@ -17,3 +17,15 @@ def upload_bytes(
             "content-type": content_type
         },
     )
+
+
+def delete_paths(
+    bucket: str,
+    paths: list[str],
+):
+    if not paths:
+        return None
+
+    return supabase.storage.from_(bucket).remove(
+        paths
+    )

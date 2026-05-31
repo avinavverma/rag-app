@@ -31,6 +31,32 @@ export async function uploadDocument(
   return response.json();
 }
 
+export async function deleteDocument(
+  documentId: string,
+  userId: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_URL}/documents/${documentId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "x-user-id": userId,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response
+      .json()
+      .catch(() => ({}));
+
+    throw new Error(
+      body.detail ??
+        `Delete failed (${response.status})`
+    );
+  }
+}
+
 export async function streamQuery(
   question: string,
   documentId: string,

@@ -13,6 +13,8 @@ import {
   signOut,
 } from "@/lib/auth";
 
+import { deleteDocument } from "@/lib/api";
+
 import { fetchDocuments } from "@/lib/documents";
 
 import { DocumentCard } from "@/components/document-card";
@@ -40,6 +42,9 @@ export default function DashboardPage() {
     useState(true);
 
   const [error, setError] =
+    useState<string | null>(null);
+
+  const [deletingId, setDeletingId] =
     useState<string | null>(null);
 
   const loadDocuments = useCallback(
@@ -75,6 +80,51 @@ export default function DashboardPage() {
 
     router.push("/login");
     router.refresh();
+  }
+
+  async function handleDeleteDocument(
+    document: Document
+  ) {
+    if (!user) return;
+
+    const confirmed =
+      window.confirm(
+        `Delete "${document.name}"? This removes the PDF and its chat history.`
+      );
+
+    if (!confirmed) return;
+
+    setDeletingId(document.id);
+    setError(null);
+
+    const previousDocuments =
+      documents;
+
+    setDocuments((current) =>
+      current.filter(
+        (doc) =>
+          doc.id !== document.id
+      )
+    );
+
+    try {
+      await deleteDocument(
+        document.id,
+        user.id
+      );
+    } catch (e) {
+      setDocuments(
+        previousDocuments
+      );
+
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Failed to delete document"
+      );
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   if (authLoading && !user) {
@@ -168,6 +218,13 @@ export default function DashboardPage() {
                   }
                   document={
                     document
+                  }
+                  onDelete={
+                    handleDeleteDocument
+                  }
+                  deleting={
+                    deletingId ===
+                    document.id
                   }
                 />
               )
